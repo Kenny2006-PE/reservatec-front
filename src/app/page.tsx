@@ -39,7 +39,7 @@ export default function Home() {
           </div>
 
           {/* Botón de Google */}
-          <Link href="/dashboard">
+          <Link href="/user-info">
             <button className="group w-full bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-2xl py-4 px-6 flex items-center justify-center gap-4 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
               <GoogleIcon className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
               <span className="text-slate-700 font-semibold text-lg tracking-wide">Acceder con Google</span>

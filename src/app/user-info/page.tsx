@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { CalendarIcon, UserIcon, LogOutIcon, SaveIcon, InfoIcon, ChevronRightIcon } from "@/components/Icons";
 
-export default function Dashboard() {
+export default function userinfo() {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
