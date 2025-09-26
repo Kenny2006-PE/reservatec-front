@@ -1,3 +1,10 @@
+/**
+ * @page User Info Page
+ * @description Página de información y perfil del usuario
+ * @route /user-info
+ * @protected Requiere autenticación
+ */
+
 "use client";
 
 import Image from "next/image";
@@ -5,6 +12,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarIcon, UserIcon, LogOutIcon, SaveIcon, InfoIcon, ChevronRightIcon } from "@/components/Icons";
+import { AuthService } from "@/services/auth";
 
 export default function userinfo() {
   const router = useRouter();
@@ -139,8 +147,10 @@ export default function userinfo() {
 
         {/* Cerrar sesión */}
         <div className="px-4 sm:px-6 py-4 sm:py-6 lg:py-8 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-700/30 mt-auto">
-          <Link href="/">
-            <button className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl hover:bg-red-500/10 transition-all duration-300 w-full text-left border border-transparent hover:border-red-500/30 hover:shadow-lg`}>
+          <button 
+            onClick={() => AuthService.logout()}
+            className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl hover:bg-red-500/10 transition-all duration-300 w-full text-left border border-transparent hover:border-red-500/30 hover:shadow-lg`}
+          >
               <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-slate-700/80 rounded-lg lg:rounded-xl flex items-center justify-center group-hover:bg-red-500/20 transition-all duration-300">
                 <LogOutIcon className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-slate-300 group-hover:text-red-400" />
               </div>
@@ -154,7 +164,6 @@ export default function userinfo() {
                 </>
               )}
             </button>
-          </Link>
         </div>
       </div>
 

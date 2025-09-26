@@ -1,6 +1,15 @@
+/**
+ * @page Login Page
+ * @description Página principal de autenticación con Google
+ * @route / (root)
+ * @public Acceso público
+ */
+
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
 import { GoogleIcon } from "@/components/Icons";
+import { AuthService } from "@/services/auth";
 
 export default function Home() {
   return (
@@ -39,12 +48,13 @@ export default function Home() {
           </div>
 
           {/* Botón de Google */}
-          <Link href="/user-info">
-            <button className="group w-full bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-xl sm:rounded-2xl py-4 sm:py-5 lg:py-6 px-6 sm:px-8 flex items-center justify-center gap-4 sm:gap-5 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-              <GoogleIcon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 group-hover:scale-110 transition-transform duration-200" />
-              <span className="text-slate-700 font-semibold text-lg sm:text-xl lg:text-2xl tracking-wide">Acceder con Google</span>
-            </button>
-          </Link>
+          <button 
+            onClick={() => AuthService.initiateGoogleLogin()}
+            className="group w-full bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-xl sm:rounded-2xl py-4 sm:py-5 lg:py-6 px-6 sm:px-8 flex items-center justify-center gap-4 sm:gap-5 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+          >
+            <GoogleIcon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 group-hover:scale-110 transition-transform duration-200" />
+            <span className="text-slate-700 font-semibold text-lg sm:text-xl lg:text-2xl tracking-wide">Acceder con Google</span>
+          </button>
         </div>
       </div>
 

@@ -1,3 +1,11 @@
+/**
+ * @page Sports Area Detail
+ * @description Página de detalle y reserva de área deportiva específica
+ * @route /reservas/[cancha]
+ * @param cancha - Identificador del área deportiva
+ * @protected Requiere autenticación
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -5,6 +13,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { LogOutIcon, ChevronRightIcon, CalendarIcon, ClockIcon, UsersIcon } from '@/components/Icons';
+import { AuthService } from '@/services/auth';
 
 export default function ReservaCanchaPage() {
   const params = useParams();
@@ -63,10 +72,10 @@ export default function ReservaCanchaPage() {
     monday.setDate(today.getDate() - currentDay + 1);
 
     const weekDays = [];
-    const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+    const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE'];
     const monthNames = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
 
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
       const day = new Date(monday);
       day.setDate(monday.getDate() + i);
       
@@ -237,8 +246,10 @@ export default function ReservaCanchaPage() {
 
         {/* Cerrar sesión */}
         <div className="px-4 sm:px-6 py-4 sm:py-6 lg:py-8 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-700/30 mt-auto">
-          <Link href="/">
-            <button className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl hover:bg-red-500/10 transition-all duration-300 w-full text-left border border-transparent hover:border-red-500/30 hover:shadow-lg`}>
+          <button 
+            onClick={() => AuthService.logout()}
+            className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl hover:bg-red-500/10 transition-all duration-300 w-full text-left border border-transparent hover:border-red-500/30 hover:shadow-lg`}
+          >
               <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-slate-700/80 rounded-lg lg:rounded-xl flex items-center justify-center group-hover:bg-red-500/20 transition-all duration-300">
                 <LogOutIcon className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-slate-300 group-hover:text-red-400" />
               </div>
@@ -252,7 +263,6 @@ export default function ReservaCanchaPage() {
                 </>
               )}
             </button>
-          </Link>
         </div>
       </div>
 
@@ -300,7 +310,7 @@ export default function ReservaCanchaPage() {
                 {/* Selector de día */}
                 <div className="mb-8">
                   <h3 className="text-lg font-bold text-slate-900 mb-6 font-poppins">Selecciona un día</h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 sm:gap-4">
                     {weekDays.map((day) => (
                       <button
                         key={day.fullDate}
