@@ -44,6 +44,16 @@ export default function ReservasPage() {
       name: "Futsal/Vóley/Básket",
       description: "Cancha multiuso deportiva",
       color: "#f59e0b"
+    },
+    ludo: {
+      name: "Ludoteca",
+      description: "Área de juegos de mesa",
+      color: "#ec4899"
+    },
+    pingpong: {
+      name: "Ping Pong",
+      description: "Mesa de ping pong",
+      color: "#14b8a6"
     }
   };
 
@@ -110,12 +120,12 @@ export default function ReservasPage() {
                   )}
 
                   <svg
-                    viewBox="0 0 900 700"
+                    viewBox="0 0 900 800"
                     className="w-full h-auto max-h-[70vh] drop-shadow-lg"
                     style={{ filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.1))' }}
                   >
                     {/* Fondo del polideportivo */}
-                    <rect x="0" y="0" width="900" height="700" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="3"/>
+                    <rect x="0" y="0" width="900" height="800" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="3"/>
                     
                     {/* Área de Fútbol 2 (parte superior - horizontal) */}
                     <g>
@@ -184,7 +194,7 @@ export default function ReservasPage() {
                     {/* Área de Fútbol 1 (debajo de Fútbol 2) */}
                     <g>
                       <rect 
-                        x="40" 
+                        x="340" 
                         y="260" 
                         width="200" 
                         height="400" 
@@ -197,23 +207,23 @@ export default function ReservasPage() {
                         onClick={() => handleAreaClick('futbol1')}
                       />
                       {/* Líneas de la cancha de fútbol 1 - vertical */}
-                      <rect x="55" y="275" width="170" height="370" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="355" y="275" width="170" height="370" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Círculo central */}
-                      <circle cx="140" cy="460" r="30" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <circle cx="440" cy="460" r="30" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Línea central */}
-                      <line x1="55" y1="460" x2="225" y2="460" stroke="#10b981" strokeWidth="2"/>
+                      <line x1="355" y1="460" x2="525" y2="460" stroke="#10b981" strokeWidth="2"/>
                       {/* Áreas de penalty */}
-                      <rect x="90" y="275" width="100" height="50" fill="none" stroke="#10b981" strokeWidth="2"/>
-                      <rect x="90" y="595" width="100" height="50" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="390" y="275" width="100" height="50" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="390" y="595" width="100" height="50" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Áreas pequeñas */}
-                      <rect x="110" y="275" width="60" height="20" fill="none" stroke="#10b981" strokeWidth="2"/>
-                      <rect x="110" y="625" width="60" height="20" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="410" y="275" width="60" height="20" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="410" y="625" width="60" height="20" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Porterías */}
-                      <rect x="125" y="260" width="30" height="15" fill="none" stroke="#10b981" strokeWidth="3"/>
-                      <rect x="125" y="645" width="30" height="15" fill="none" stroke="#10b981" strokeWidth="3"/>
+                      <rect x="425" y="260" width="30" height="15" fill="none" stroke="#10b981" strokeWidth="3"/>
+                      <rect x="425" y="645" width="30" height="15" fill="none" stroke="#10b981" strokeWidth="3"/>
                       
                       {/* Label FUTBOL 1 */}
-                      <text x="140" y="410" textAnchor="middle" className="fill-slate-700 font-bold text-3xl font-poppins">
+                      <text x="440" y="410" textAnchor="middle" className="fill-slate-700 font-bold text-3xl font-poppins">
                         FÚTBOL 1
                       </text>
                     </g>
@@ -259,14 +269,57 @@ export default function ReservasPage() {
                       </text>
                     </g>
 
-                    {/* Área de Co-Working (esquina inferior derecha) */}
-                    <rect x="600" y="560" width="260" height="100" fill="#e0f2fe" stroke="#0ea5e9" strokeWidth="2"/>
-                    <text x="730" y="618" textAnchor="middle" className="fill-slate-600 font-semibold text-lg font-poppins">
+                    {/* Área de Ludoteca (esquina inferior derecha) */}
+                    <g>
+                      <rect 
+                        x="730" 
+                        y="660" 
+                        width="130" 
+                        height="100" 
+                        fill={selectedArea === 'ludo' ? '#ec4899' : hoveredArea === 'ludo' ? '#f472b6' : '#fce7f3'}
+                        stroke="#ec4899" 
+                        strokeWidth="3"
+                        className="cursor-pointer transition-all duration-300 hover:fill-opacity-80"
+                        onMouseEnter={() => setHoveredArea('ludo')}
+                        onMouseLeave={() => setHoveredArea(null)}
+                        onClick={() => handleAreaClick('ludo')}
+                      />
+                      {/* Íconos representativos de juegos de mesa */}
+                      <circle cx="795" cy="690" r="10" fill="none" stroke="#ec4899" strokeWidth="2"/>
+                      <rect x="775" y="710" width="40" height="40" fill="none" stroke="#ec4899" strokeWidth="2"/>
+                      <text x="795" y="740" textAnchor="middle" className="fill-slate-700 font-bold text-sm font-poppins">
+                        LUDOTECA
+                      </text>
+                    </g>
+
+                    {/* Área de Ping Pong (esquina inferior derecha) */}
+                    <g>
+                      <rect 
+                        x="600" 
+                        y="660" 
+                        width="130" 
+                        height="100" 
+                        fill={selectedArea === 'pingpong' ? '#14b8a6' : hoveredArea === 'pingpong' ? '#2dd4bf' : '#ccfbf1'}
+                        stroke="#14b8a6" 
+                        strokeWidth="3"
+                        className="cursor-pointer transition-all duration-300 hover:fill-opacity-80"
+                        onMouseEnter={() => setHoveredArea('pingpong')}
+                        onMouseLeave={() => setHoveredArea(null)}
+                        onClick={() => handleAreaClick('pingpong')}
+                      />
+                      {/* Mesa de ping pong */}
+                      <rect x="620" y="680" width="90" height="60" fill="none" stroke="#14b8a6" strokeWidth="2"/>
+                      <line x1="665" y1="680" x2="665" y2="740" stroke="#14b8a6" strokeWidth="2"/>
+                      <text x="665" y="740" textAnchor="middle" className="fill-slate-700 font-bold text-sm font-poppins">
+                        PING PONG
+                      </text>
+                    </g>
+                    <text x="730" y="648" textAnchor="middle" className="fill-slate-600 font-semibold text-lg font-poppins">
                       CO-WORKING
                     </text>
 
                     {/* Etiqueta POLIDEPORTIVO */}
-                    <text x="450" y="650" textAnchor="middle" className="fill-slate-500 font-bold text-xl font-poppins tracking-wider">
+                    <text x="450" y="770" textAnchor="middle" className="fill-slate-500 font-bold text-xl font-poppins tracking-wider">
                       POLIDEPORTIVO
                     </text>
                   </svg>
@@ -275,7 +328,7 @@ export default function ReservasPage() {
                 {/* Leyenda de colores */}
                 <div className="mt-8 bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-900 mb-4 font-poppins">Áreas Deportivas Disponibles</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {Object.entries(areas).map(([key, area]) => (
                       <div 
                         key={key}

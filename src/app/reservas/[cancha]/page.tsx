@@ -51,6 +51,16 @@ export default function ReservaCanchaPage() {
       name: 'Futsal/Vóley/Básket',
       description: 'Revisa los horarios disponibles y reserva',
       color: '#f59e0b'
+    },
+    ludo: {
+      name: "Ludoteca",
+      description: "Revisa los horarios disponibles y reserva",
+      color: "#ec4899"
+    },
+    pingpong: {
+      name: "Ping Pong",
+      description: "Revisa los horarios disponibles y reserva",
+      color: "#14b8a6"
     }
   };
 
