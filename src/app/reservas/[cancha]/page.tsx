@@ -301,8 +301,8 @@ export default function ReservaCanchaPage() {
 
       {/* Modal de Reserva */}
       {showModal && (
-        <div className="fixed inset-0 bg-white bg-opacity-30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto relative">
+        <div className="fixed inset-0 bg-black/50 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto relative">
             {/* Header del modal */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-lg font-bold text-slate-900 font-poppins">
