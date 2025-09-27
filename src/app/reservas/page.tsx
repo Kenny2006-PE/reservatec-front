@@ -122,8 +122,8 @@ export default function ReservasPage() {
                       <rect 
                         x="40" 
                         y="40" 
-                        width="600" 
-                        height="280" 
+                        width="500" 
+                        height="200" 
                         fill={selectedArea === 'futbol2' ? '#3b82f6' : hoveredArea === 'futbol2' ? '#60a5fa' : '#dbeafe'}
                         stroke="#3b82f6" 
                         strokeWidth="3"
@@ -133,23 +133,23 @@ export default function ReservasPage() {
                         onClick={() => handleAreaClick('futbol2')}
                       />
                       {/* Líneas de la cancha de fútbol 2 */}
-                      <rect x="60" y="60" width="560" height="240" fill="none" stroke="#3b82f6" strokeWidth="2"/>
+                      <rect x="60" y="50" width="460" height="180" fill="none" stroke="#3b82f6" strokeWidth="2"/>
                       {/* Círculo central */}
-                      <circle cx="340" cy="180" r="45" fill="none" stroke="#3b82f6" strokeWidth="2"/>
+                      <circle cx="290" cy="140" r="35" fill="none" stroke="#3b82f6" strokeWidth="2"/>
                       {/* Línea central */}
-                      <line x1="340" y1="60" x2="340" y2="300" stroke="#3b82f6" strokeWidth="2"/>
+                      <line x1="290" y1="50" x2="290" y2="230" stroke="#3b82f6" strokeWidth="2"/>
                       {/* Áreas de penalty */}
-                      <rect x="60" y="120" width="80" height="120" fill="none" stroke="#3b82f6" strokeWidth="2"/>
-                      <rect x="540" y="120" width="80" height="120" fill="none" stroke="#3b82f6" strokeWidth="2"/>
+                      <rect x="60" y="90" width="60" height="100" fill="none" stroke="#3b82f6" strokeWidth="2"/>
+                      <rect x="460" y="90" width="60" height="100" fill="none" stroke="#3b82f6" strokeWidth="2"/>
                       {/* Áreas pequeñas */}
-                      <rect x="60" y="150" width="30" height="60" fill="none" stroke="#3b82f6" strokeWidth="2"/>
-                      <rect x="590" y="150" width="30" height="60" fill="none" stroke="#3b82f6" strokeWidth="2"/>
+                      <rect x="60" y="110" width="25" height="60" fill="none" stroke="#3b82f6" strokeWidth="2"/>
+                      <rect x="495" y="110" width="25" height="60" fill="none" stroke="#3b82f6" strokeWidth="2"/>
                       {/* Porterías */}
-                      <rect x="40" y="165" width="20" height="30" fill="none" stroke="#3b82f6" strokeWidth="3"/>
-                      <rect x="620" y="165" width="20" height="30" fill="none" stroke="#3b82f6" strokeWidth="3"/>
+                      <rect x="40" y="125" width="20" height="30" fill="none" stroke="#3b82f6" strokeWidth="3"/>
+                      <rect x="520" y="125" width="20" height="30" fill="none" stroke="#3b82f6" strokeWidth="3"/>
                       
                       {/* Label FUTBOL 2 */}
-                      <text x="340" y="190" textAnchor="middle" className="fill-slate-700 font-bold text-3xl font-poppins">
+                      <text x="300" y="155" textAnchor="middle" className="fill-slate-700 font-bold text-3xl font-poppins">
                         FÚTBOL 2
                       </text>
                     </g>
@@ -160,7 +160,7 @@ export default function ReservasPage() {
                         x="670" 
                         y="40" 
                         width="190" 
-                        height="140" 
+                        height="120" 
                         fill={selectedArea === 'fronton' ? '#8b5cf6' : hoveredArea === 'fronton' ? '#a78bfa' : '#ede9fe'}
                         stroke="#8b5cf6" 
                         strokeWidth="3"
@@ -170,35 +170,24 @@ export default function ReservasPage() {
                         onClick={() => handleAreaClick('fronton')}
                       />
                       {/* Líneas del frontón */}
-                      <rect x="685" y="55" width="160" height="110" fill="none" stroke="#8b5cf6" strokeWidth="2"/>
+                      <rect x="685" y="50" width="160" height="100" fill="none" stroke="#8b5cf6" strokeWidth="2"/>
                       {/* Líneas de servicio */}
-                      <line x1="685" y1="90" x2="845" y2="90" stroke="#8b5cf6" strokeWidth="1"/>
-                      <line x1="685" y1="130" x2="845" y2="130" stroke="#8b5cf6" strokeWidth="1"/>
+                      <line x1="685" y1="80" x2="845" y2="80" stroke="#8b5cf6" strokeWidth="1"/>
+                      <line x1="685" y1="120" x2="845" y2="120" stroke="#8b5cf6" strokeWidth="1"/>
                       
                       {/* Label FRONTON */}
-                      <text x="765" y="115" textAnchor="middle" className="fill-slate-700 font-bold text-lg font-poppins">
+                      <text x="765" y="110" textAnchor="middle" className="fill-slate-700 font-bold text-lg font-poppins">
                         FRONTÓN
                       </text>
                     </g>
 
-                    {/* Graderías (entre las dos canchas de fútbol) */}
-                    <rect x="40" y="330" width="600" height="30" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2"/>
-                    <g>
-                      {/* Líneas de las gradas */}
-                      <line x1="40" y1="335" x2="640" y2="335" stroke="#94a3b8" strokeWidth="1"/>
-                      <line x1="40" y1="340" x2="640" y2="340" stroke="#94a3b8" strokeWidth="1"/>
-                      <line x1="40" y1="345" x2="640" y2="345" stroke="#94a3b8" strokeWidth="1"/>
-                      <line x1="40" y1="350" x2="640" y2="350" stroke="#94a3b8" strokeWidth="1"/>
-                      <line x1="40" y1="355" x2="640" y2="355" stroke="#94a3b8" strokeWidth="1"/>
-                    </g>
-
-                    {/* Área de Fútbol 1 (parte inferior izquierda - mismo tamaño que Fútbol 2) */}
+                    {/* Área de Fútbol 1 (debajo de Fútbol 2) */}
                     <g>
                       <rect 
                         x="40" 
-                        y="380" 
-                        width="500" 
-                        height="280" 
+                        y="260" 
+                        width="200" 
+                        height="400" 
                         fill={selectedArea === 'futbol1' ? '#10b981' : hoveredArea === 'futbol1' ? '#34d399' : '#dcfce7'}
                         stroke="#10b981" 
                         strokeWidth="3"
@@ -207,35 +196,35 @@ export default function ReservasPage() {
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('futbol1')}
                       />
-                      {/* Líneas de la cancha de fútbol 1 - mismas proporciones que fútbol 2 */}
-                      <rect x="60" y="400" width="460" height="240" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      {/* Líneas de la cancha de fútbol 1 - vertical */}
+                      <rect x="55" y="275" width="170" height="370" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Círculo central */}
-                      <circle cx="290" cy="520" r="40" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <circle cx="140" cy="460" r="30" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Línea central */}
-                      <line x1="290" y1="400" x2="290" y2="640" stroke="#10b981" strokeWidth="2"/>
+                      <line x1="55" y1="460" x2="225" y2="460" stroke="#10b981" strokeWidth="2"/>
                       {/* Áreas de penalty */}
-                      <rect x="60" y="460" width="70" height="120" fill="none" stroke="#10b981" strokeWidth="2"/>
-                      <rect x="450" y="460" width="70" height="120" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="90" y="275" width="100" height="50" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="90" y="595" width="100" height="50" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Áreas pequeñas */}
-                      <rect x="60" y="490" width="25" height="60" fill="none" stroke="#10b981" strokeWidth="2"/>
-                      <rect x="495" y="490" width="25" height="60" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="110" y="275" width="60" height="20" fill="none" stroke="#10b981" strokeWidth="2"/>
+                      <rect x="110" y="625" width="60" height="20" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Porterías */}
-                      <rect x="40" y="505" width="20" height="30" fill="none" stroke="#10b981" strokeWidth="3"/>
-                      <rect x="520" y="505" width="20" height="30" fill="none" stroke="#10b981" strokeWidth="3"/>
+                      <rect x="125" y="260" width="30" height="15" fill="none" stroke="#10b981" strokeWidth="3"/>
+                      <rect x="125" y="645" width="30" height="15" fill="none" stroke="#10b981" strokeWidth="3"/>
                       
                       {/* Label FUTBOL 1 */}
-                      <text x="290" y="530" textAnchor="middle" className="fill-slate-700 font-bold text-3xl font-poppins">
+                      <text x="140" y="410" textAnchor="middle" className="fill-slate-700 font-bold text-3xl font-poppins">
                         FÚTBOL 1
                       </text>
                     </g>
 
-                    {/* Área de Futsal/Vóley/Básket (derecha, desde graderías hacia abajo) */}
+                    {/* Área de Futsal/Vóley/Básket (derecha, debajo del frontón) */}
                     <g>
                       <rect 
                         x="670" 
-                        y="200" 
+                        y="180" 
                         width="190" 
-                        height="460" 
+                        height="280" 
                         fill={selectedArea === 'voley' ? '#f59e0b' : hoveredArea === 'voley' ? '#fbbf24' : '#fef3c7'}
                         stroke="#f59e0b" 
                         strokeWidth="3"
@@ -245,56 +234,39 @@ export default function ReservasPage() {
                         onClick={() => handleAreaClick('voley')}
                       />
                       {/* Líneas de la cancha multiuso */}
-                      <rect x="685" y="220" width="160" height="420" fill="none" stroke="#f59e0b" strokeWidth="2"/>
+                      <rect x="685" y="195" width="160" height="250" fill="none" stroke="#f59e0b" strokeWidth="2"/>
                       
                       {/* Sección de Básket (parte superior) */}
-                      <circle cx="765" cy="290" r="30" fill="none" stroke="#f59e0b" strokeWidth="2"/>
-                      <rect x="735" y="260" width="60" height="20" fill="none" stroke="#f59e0b" strokeWidth="1"/>
-                      <line x1="765" y1="220" x2="765" y2="360" stroke="#f59e0b" strokeWidth="1"/>
-                      <rect x="685" y="270" width="25" height="40" fill="none" stroke="#f59e0b" strokeWidth="2"/>
-                      <rect x="820" y="270" width="25" height="40" fill="none" stroke="#f59e0b" strokeWidth="2"/>
+                      <circle cx="765" cy="245" r="20" fill="none" stroke="#f59e0b" strokeWidth="2"/>
+                      <rect x="685" y="230" width="20" height="30" fill="none" stroke="#f59e0b" strokeWidth="2"/>
+                      <rect x="825" y="230" width="20" height="30" fill="none" stroke="#f59e0b" strokeWidth="2"/>
                       
                       {/* Red de vóley (centro) */}
-                      <line x1="685" y1="430" x2="845" y2="430" stroke="#f59e0b" strokeWidth="4"/>
-                      <line x1="765" y1="410" x2="765" y2="450" stroke="#f59e0b" strokeWidth="2"/>
+                      <line x1="685" y1="320" x2="845" y2="320" stroke="#f59e0b" strokeWidth="4"/>
+                      <line x1="765" y1="300" x2="765" y2="340" stroke="#f59e0b" strokeWidth="2"/>
                       
                       {/* Cancha de futsal (parte inferior) */}
-                      <circle cx="765" cy="550" r="25" fill="none" stroke="#f59e0b" strokeWidth="1"/>
-                      <rect x="685" y="520" width="30" height="60" fill="none" stroke="#f59e0b" strokeWidth="2"/>
-                      <rect x="815" y="520" width="30" height="60" fill="none" stroke="#f59e0b" strokeWidth="2"/>
+                      <circle cx="765" cy="400" r="20" fill="none" stroke="#f59e0b" strokeWidth="2"/>
+                      <rect x="685" y="380" width="25" height="40" fill="none" stroke="#f59e0b" strokeWidth="2"/>
+                      <rect x="820" y="380" width="25" height="40" fill="none" stroke="#f59e0b" strokeWidth="2"/>
                       
                       {/* Labels */}
-                      <text x="765" y="310" textAnchor="middle" className="fill-slate-700 font-bold text-sm font-poppins">
+                      <text x="765" y="250" textAnchor="middle" className="fill-slate-700 font-bold text-sm font-poppins">
                         BÁSKET
                       </text>
-                      <text x="765" y="445" textAnchor="middle" className="fill-slate-700 font-bold text-sm font-poppins">
+                      <text x="765" y="405" textAnchor="middle" className="fill-slate-700 font-bold text-sm font-poppins">
                         VÓLEY
-                      </text>
-                      <text x="765" y="570" textAnchor="middle" className="fill-slate-700 font-bold text-sm font-poppins">
-                        FUTSAL
                       </text>
                     </g>
 
-                    {/* Área verde lateral izquierda (zona de servicios) */}
-                    <rect x="560" y="380" width="100" height="150" fill="#dcfce7" stroke="#84cc16" strokeWidth="2"/>
-                    <text x="610" y="430" textAnchor="middle" className="fill-slate-600 font-semibold text-xs font-poppins">
-                      SERVICIOS
-                    </text>
-                    <text x="610" y="445" textAnchor="middle" className="fill-slate-600 font-semibold text-xs font-poppins">
-                      GENERALES
-                    </text>
-
-                    {/* Entrada principal */}
-                    <rect x="560" y="550" width="100" height="110" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="2"/>
-                    <text x="610" y="610" textAnchor="middle" className="fill-slate-600 font-semibold text-sm font-poppins">
-                      ENTRADA
-                    </text>
-                    <text x="610" y="625" textAnchor="middle" className="fill-slate-600 font-semibold text-sm font-poppins">
-                      PRINCIPAL
+                    {/* Área de Co-Working (esquina inferior derecha) */}
+                    <rect x="600" y="560" width="260" height="100" fill="#e0f2fe" stroke="#0ea5e9" strokeWidth="2"/>
+                    <text x="730" y="618" textAnchor="middle" className="fill-slate-600 font-semibold text-lg font-poppins">
+                      CO-WORKING
                     </text>
 
                     {/* Etiqueta POLIDEPORTIVO */}
-                    <text x="290" y="690" textAnchor="middle" className="fill-slate-500 font-bold text-xl font-poppins tracking-wider">
+                    <text x="450" y="650" textAnchor="middle" className="fill-slate-500 font-bold text-xl font-poppins tracking-wider">
                       POLIDEPORTIVO
                     </text>
                   </svg>
