@@ -10,15 +10,19 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Sidebar from '@/components/Sidebar';
+import Header from '@/components/Header';
 import { useRouter } from 'next/navigation';
 import { LogOutIcon, ChevronRightIcon } from '@/components/Icons';
 import { AuthService } from '@/services/auth';
+import { useUserPicture } from '@/hooks/useUserPicture';
 
 export default function ReservasPage() {
   const router = useRouter();
   const [hoveredArea, setHoveredArea] = useState<string | null>(null);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const userPicture = useUserPicture();
 
   const areas = {
     futbol1: {
@@ -53,138 +57,15 @@ export default function ReservasPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col lg:flex-row font-inter">
-      {/* Sidebar */}
-      <div className={`${sidebarCollapsed ? 'w-20 lg:w-20' : 'w-full lg:w-80'} bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col shadow-2xl border-r border-slate-700/50 lg:min-h-screen transition-all duration-300 ease-in-out`}>
-        {/* Header del sidebar */}
-        <div className="p-4 sm:p-6 lg:p-8 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-slate-700/50">
-          <div className="flex items-center justify-between">
-            <div className={`flex items-center justify-center ${sidebarCollapsed ? 'w-full' : ''}`}>
-              {!sidebarCollapsed && (
-                <Image
-                  src="/logo-blanco-dashboard.png"
-                  alt="ReservaTec Logo"
-                  width={160}
-                  height={55}
-                  className="object-contain drop-shadow-lg sm:w-48 sm:h-16 lg:w-52 lg:h-17"
-                />
-              )}
-              {sidebarCollapsed && (
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                  <span className="text-white font-bold text-sm">R</span>
-                </div>
-              )}
-            </div>
-            {/* Toggle button */}
-            <button
-              onClick={toggleSidebar}
-              className="hidden lg:block p-2 hover:bg-slate-700/60 rounded-lg transition-all duration-200 group"
-            >
-              <svg 
-                className={`w-5 h-5 text-slate-300 group-hover:text-white transition-transform duration-300 ${sidebarCollapsed ? 'rotate-180' : ''}`} 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                viewBox="0 0 24 24"
-              >
-                <path d="M15 18l-6-6 6-6"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Menu items */}
-        <nav className="flex-1 px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
-          <div className="space-y-2 sm:space-y-3 lg:space-y-4">
-            {!sidebarCollapsed && (
-              <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 sm:mb-6 lg:mb-8 font-poppins">
-                Navegación Principal
-              </div>
-            )}
-            
-            <Link href="#" className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl bg-gradient-to-r from-slate-700/70 to-slate-600/60 border border-slate-600/50 shadow-xl backdrop-blur-sm`}>
-              <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg">
-                <svg className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-              </div>
-              {!sidebarCollapsed && (
-                <>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <span className="font-semibold text-white font-poppins text-sm sm:text-base truncate">Reservas</span>
-                    <span className="text-xs sm:text-sm text-blue-300 font-medium hidden sm:block">Gestiona tus reservas deportivas</span>
-                  </div>
-                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full shadow-lg"></div>
-                </>
-              )}
-            </Link>
-            
-            <Link href="/user-info" className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl hover:bg-slate-700/60 transition-all duration-300 border border-transparent hover:border-slate-600/40 hover:shadow-lg`}>
-              <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg lg:rounded-xl flex items-center justify-center group-hover:from-emerald-400 group-hover:to-emerald-500 transition-all duration-300 shadow-lg">
-                <svg className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
-              </div>
-              {!sidebarCollapsed && (
-                <>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <span className="font-semibold text-slate-100 group-hover:text-white font-poppins text-sm sm:text-base truncate">Mi Información</span>
-                    <span className="text-xs sm:text-sm text-slate-400 group-hover:text-slate-300 font-medium hidden sm:block">Perfil personal y configuración</span>
-                  </div>
-                  <ChevronRightIcon className="w-4 h-4 text-slate-400 group-hover:text-slate-300 group-hover:translate-x-1 transition-all duration-200 hidden sm:block" />
-                </>
-              )}
-            </Link>
-          </div>
-        </nav>
-
-        {/* Cerrar sesión */}
-        <div className="px-4 sm:px-6 py-4 sm:py-6 lg:py-8 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-700/30 mt-auto">
-          <button 
-            onClick={() => AuthService.logout()}
-            className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl hover:bg-red-500/10 transition-all duration-300 w-full text-left border border-transparent hover:border-red-500/30 hover:shadow-lg`}
-          >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-slate-700/80 rounded-lg lg:rounded-xl flex items-center justify-center group-hover:bg-red-500/20 transition-all duration-300">
-                <LogOutIcon className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-slate-300 group-hover:text-red-400" />
-              </div>
-              {!sidebarCollapsed && (
-                <>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <span className="font-semibold text-slate-100 group-hover:text-red-400 font-poppins text-sm sm:text-base truncate">Cerrar Sesión</span>
-                    <span className="text-xs sm:text-sm text-slate-400 group-hover:text-red-300 font-medium hidden sm:block">Salir del sistema de forma segura</span>
-                  </div>
-                  <ChevronRightIcon className="w-4 h-4 text-slate-400 group-hover:text-red-400 group-hover:translate-x-1 transition-all duration-200 hidden sm:block" />
-                </>
-              )}
-            </button>
-        </div>
-      </div>
+      <Sidebar currentPath="reservas" />
 
       {/* Contenido principal */}
       <div className="flex-1 flex flex-col w-full lg:w-auto">
-        {/* Header */}
-        <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-200/60 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mb-2 font-poppins">Reservar Espacios Deportivos</h1>
-              <p className="text-slate-600 font-medium tracking-wide text-sm sm:text-base">Selecciona el área deportiva donde deseas realizar tu reserva</p>
-            </div>
-            <div className="flex items-center gap-3 sm:gap-6">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm sm:text-base font-semibold text-slate-900 font-poppins">Usuario Demo</p>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">Estudiante Activo</p>
-              </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl lg:rounded-2xl flex items-center justify-center text-white font-bold text-sm sm:text-base lg:text-lg shadow-lg font-poppins">
-                UD
-              </div>
-            </div>
-          </div>
-        </header>
+        <Header 
+          title="Reservar Espacios Deportivos"
+          description="Selecciona el área deportiva donde deseas realizar tu reserva"
+          userImage={userPicture}
+        />
 
         {/* Contenido del mapa */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
