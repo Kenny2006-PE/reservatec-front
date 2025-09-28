@@ -7,48 +7,63 @@
 
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SaveIcon, InfoIcon, UserIcon, CalendarIcon } from "@/components/Icons";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useUserPicture } from "@/hooks/useUserPicture";
+import { useUserForm } from "@/hooks/useUserForm";
+import { getUserEmail } from "@/utils/auth";
 
-export default function userinfo() {
+export default function UserInfo() {
   const router = useRouter();
   const userPicture = useUserPicture();
-  const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    dni: "",
-    codigoInstitucional: "",
-    carrera: "",
-    condicionMedica: "No",
-    tipoCondicion: ""
-  });
+  const {
+    formState,
+    carreras,
+    loadCarreras,
+    submitForm
+  } = useUserForm();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const [hasCondicionMed, setHasCondicionMed] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    loadCarreras();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Datos del formulario:", formData);
+    const formData = new FormData(e.target as HTMLFormElement);
     
-    // Aquí iría la lógica para guardar la información en el backend
-    // Por ahora simularemos que se guardó correctamente
-    
-    // Mostrar mensaje de éxito (opcional)
-    alert("¡Información guardada exitosamente! Ahora puedes realizar tus reservas.");
-    
-    // Redirigir a la página de reservas
-    router.push("/reservas");
+    try {
+      const email = getUserEmail();
+      console.log('Email obtenido:', email);
+      
+      if (!email) {
+        alert('No se pudo obtener el correo electrónico. Por favor, inicie sesión nuevamente.');
+        return;
+      }
+
+      const userData = {
+        nombre: formData.get('nombre') as string,
+        apellido: formData.get('apellido') as string,
+        dni: formData.get('dni') as string,
+        codigo: formData.get('codigo') as string,
+        id_carrera: parseInt(formData.get('id_carrera') as string),
+        condicion_med: hasCondicionMed ? (formData.get('condicion_med') as string || '') : '',
+        correo: email
+      };
+
+      await submitForm(userData);
+      
+      if (!formState.error) {
+        alert("¡Información guardada exitosamente! Ahora puedes realizar tus reservas.");
+        router.push("/reservas");
+      }
+    } catch (error: any) {
+      alert(error.message || "Error al guardar la información");
+    }
   };
 
   return (
@@ -102,10 +117,9 @@ export default function userinfo() {
                           <input
                             type="text"
                             name="nombre"
-                            value={formData.nombre}
-                            onChange={handleInputChange}
-                            placeholder="Ingresa tu nombre completo"
-                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
+                            required
+                            disabled={formState.isLoading}
+                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
                         
@@ -116,10 +130,9 @@ export default function userinfo() {
                           <input
                             type="text"
                             name="apellido"
-                            value={formData.apellido}
-                            onChange={handleInputChange}
-                            placeholder="Ingresa tus apellidos"
-                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
+                            required
+                            disabled={formState.isLoading}
+                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
 
@@ -130,11 +143,11 @@ export default function userinfo() {
                           <input
                             type="text"
                             name="dni"
-                            value={formData.dni}
-                            onChange={handleInputChange}
-                            placeholder="12345678"
+                            required
                             maxLength={8}
-                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
+                            pattern="[0-9]*"
+                            disabled={formState.isLoading}
+                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
                       </div>
@@ -156,9 +169,8 @@ export default function userinfo() {
                           </label>
                           <input
                             type="text"
-                            name="codigoInstitucional"
-                            value={formData.codigoInstitucional}
-                            onChange={handleInputChange}
+                            name="codigo"
+                            defaultValue=""
                             placeholder="T12345678"
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
                           />
@@ -169,20 +181,16 @@ export default function userinfo() {
                             Carrera Profesional
                           </label>
                           <select
-                            name="carrera"
-                            value={formData.carrera}
-                            onChange={handleInputChange}
-                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md appearance-none font-medium text-slate-900 text-sm sm:text-base"
+                            name="id_carrera"
+                            defaultValue=""
+                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md appearance-none font-medium text-slate-900 text-sm sm:text-base disabled:opacity-50"
                           >
                             <option value="" className="text-slate-400">Selecciona tu carrera profesional</option>
-                            <option value="sistemas" className="text-slate-900">Ingeniería de Sistemas</option>
-                            <option value="industrial" className="text-slate-900">Ingeniería Industrial</option>
-                            <option value="civil" className="text-slate-900">Ingeniería Civil</option>
-                            <option value="electronica" className="text-slate-900">Ingeniería Electrónica</option>
-                            <option value="mecanica" className="text-slate-900">Ingeniería Mecánica</option>
-                            <option value="mecatronica" className="text-slate-900">Ingeniería Mecatrónica</option>
-                            <option value="software" className="text-slate-900">Ingeniería de Software</option>
-                            <option value="otros" className="text-slate-900">Otras Carreras</option>
+                            {carreras.map(carrera => (
+                              <option key={carrera.id_carrera} value={carrera.id_carrera} className="text-slate-900">
+                                {carrera.nombre}
+                              </option>
+                            ))}
                           </select>
                         </div>
                       </div>
@@ -209,40 +217,39 @@ export default function userinfo() {
                           <label className="flex items-center cursor-pointer group">
                             <input
                               type="radio"
-                              name="condicionMedica"
-                              value="Si"
-                              checked={formData.condicionMedica === "Si"}
-                              onChange={handleInputChange}
+                              name="has_condition"
+                              checked={hasCondicionMed}
+                              onChange={() => setHasCondicionMed(true)}
                               className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 focus:ring-blue-500 border-gray-300 mr-3 sm:mr-4"
+                              disabled={formState.isLoading}
                             />
                             <span className="text-sm sm:text-base font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Sí, tengo una condición médica</span>
                           </label>
                           <label className="flex items-center cursor-pointer group">
                             <input
                               type="radio"
-                              name="condicionMedica"
-                              value="No"
-                              checked={formData.condicionMedica === "No"}
-                              onChange={handleInputChange}
+                              name="has_condition"
+                              checked={!hasCondicionMed}
+                              onChange={() => setHasCondicionMed(false)}
                               className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 focus:ring-blue-500 border-gray-300 mr-3 sm:mr-4"
+                              disabled={formState.isLoading}
                             />
                             <span className="text-sm sm:text-base font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">No tengo condiciones médicas</span>
                           </label>
                         </div>
                       </div>
 
-                      {formData.condicionMedica === "Si" && (
+                      {hasCondicionMed && (
                         <div className="animate-fadeIn">
                           <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-3 sm:mb-4 font-poppins tracking-wide">
-                            Describe detalladamente tu condición médica:
+                            Describe tu condición médica:
                           </label>
                           <textarea
-                            name="tipoCondicion"
-                            value={formData.tipoCondicion}
-                            onChange={handleInputChange}
+                            name="condicion_med"
                             rows={4}
-                            placeholder="Por favor, describe brevemente tu condición médica, medicamentos que tomas, restricciones de actividad física, etc. Esta información nos ayudará a brindarte el mejor servicio y garantizar tu seguridad..."
-                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-white shadow-sm hover:shadow-md resize-none font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
+                            disabled={formState.isLoading}
+                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-white shadow-sm hover:shadow-md resize-none font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
+                            placeholder="Por favor, describe tu condición médica, medicamentos que tomas, restricciones de actividad física, etc. Esta información nos ayudará a brindarte el mejor servicio y garantizar tu seguridad..."
                           />
                         </div>
                       )}
@@ -250,10 +257,17 @@ export default function userinfo() {
                   </div>
 
                   {/* Botón de guardar */}
+                  {formState.error && (
+                    <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl">
+                      {formState.error}
+                    </div>
+                  )}
+
                   <div className="flex justify-end pt-6 sm:pt-8 border-t-2 border-gray-100">
                     <button
                       type="submit"
-                      className="group bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white py-4 sm:py-5 px-6 sm:px-10 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center gap-3 sm:gap-4 font-poppins"
+                      disabled={formState.isLoading}
+                      className="group bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white py-4 sm:py-5 px-6 sm:px-10 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center gap-3 sm:gap-4 font-poppins disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
                       <SaveIcon className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-200" />
                       <span className="hidden sm:inline">Guardar Información Completa</span>
