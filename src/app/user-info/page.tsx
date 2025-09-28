@@ -14,6 +14,7 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useUserPicture } from "@/hooks/useUserPicture";
 import { useUserForm } from "@/hooks/useUserForm";
+import { useUserRegistrationStatus } from "@/hooks/useUserRegistrationStatus";
 import { getUserEmail } from "@/utils/auth";
 
 export default function UserInfo() {
@@ -25,12 +26,35 @@ export default function UserInfo() {
     loadCarreras,
     submitForm
   } = useUserForm();
+  
+  const { isRegistered, userData, loading } = useUserRegistrationStatus();
 
   const [hasCondicionMed, setHasCondicionMed] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [canConfirm, setCanConfirm] = useState(false);
+  const [formDataToSubmit, setFormDataToSubmit] = useState<any>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
     loadCarreras();
-  }, []);
+    if (isRegistered && userData) {
+      setHasCondicionMed(!!userData.condicion_med);
+    }
+  }, [isRegistered, userData]);
+
+  // Efecto para el temporizador del botón de confirmar
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showConfirmModal) {
+      setCanConfirm(false);
+      timer = setTimeout(() => {
+        setCanConfirm(true);
+      }, 5000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [showConfirmModal]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,14 +79,26 @@ export default function UserInfo() {
         correo: email
       };
 
-      await submitForm(userData);
+      setFormDataToSubmit(userData);
+      setShowConfirmModal(true);
+    } catch (error: any) {
+      alert(error.message || "Error al guardar la información");
+    }
+  };
+
+  const handleConfirmSubmit = async () => {
+    try {
+      await submitForm(formDataToSubmit);
       
       if (!formState.error) {
+        setIsSubmitted(true);
         alert("¡Información guardada exitosamente! Ahora puedes realizar tus reservas.");
         router.push("/reservas");
       }
     } catch (error: any) {
       alert(error.message || "Error al guardar la información");
+    } finally {
+      setShowConfirmModal(false);
     }
   };
 
@@ -92,14 +128,24 @@ export default function UserInfo() {
                     </div>
                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-poppins">Completa tu perfil</h2>
                   </div>
-                  <p className="text-slate-200 text-sm sm:text-base lg:text-lg font-medium">Por favor completa tu información personal para acceder a todas las funcionalidades</p>
+                  <p className="text-slate-200 text-sm sm:text-base lg:text-lg font-medium">
+                    {isRegistered 
+                      ? "Tu información ya está registrada. No se puede modificar."
+                      : "Por favor completa tu información personal para acceder a todas las funcionalidades"}
+                  </p>
                 </div>
               </div>
 
               <div className="p-6 sm:p-8 lg:p-10">
-                <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
-                  {/* Información Personal y Académica */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
+                {loading && (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500" />
+                  </div>
+                )}
+                {!loading && (
+                  <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
+                    {/* Información Personal y Académica */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
                     {/* Información Personal */}
                     <div className="space-y-6 sm:space-y-8">
                       <div className="flex items-center gap-3 mb-4 sm:mb-6">
@@ -118,7 +164,8 @@ export default function UserInfo() {
                             type="text"
                             name="nombre"
                             required
-                            disabled={formState.isLoading}
+                            disabled={formState.isLoading || isRegistered}
+                            defaultValue={userData?.nombre || ''}
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
@@ -131,7 +178,8 @@ export default function UserInfo() {
                             type="text"
                             name="apellido"
                             required
-                            disabled={formState.isLoading}
+                            disabled={formState.isLoading || isRegistered}
+                            defaultValue={userData?.apellido || ''}
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
@@ -146,7 +194,8 @@ export default function UserInfo() {
                             required
                             maxLength={8}
                             pattern="[0-9]*"
-                            disabled={formState.isLoading}
+                            disabled={formState.isLoading || isRegistered}
+                            defaultValue={userData?.dni || ''}
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
@@ -170,9 +219,10 @@ export default function UserInfo() {
                           <input
                             type="text"
                             name="codigo"
-                            defaultValue=""
+                            disabled={formState.isLoading || isRegistered}
+                            defaultValue={userData?.codigo || ''}
                             placeholder="T12345678"
-                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
+                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
 
@@ -182,7 +232,8 @@ export default function UserInfo() {
                           </label>
                           <select
                             name="id_carrera"
-                            defaultValue=""
+                            disabled={formState.isLoading || isRegistered}
+                            defaultValue={userData?.id_carrera || ''}
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md appearance-none font-medium text-slate-900 text-sm sm:text-base disabled:opacity-50"
                           >
                             <option value="" className="text-slate-400">Selecciona tu carrera profesional</option>
@@ -221,7 +272,7 @@ export default function UserInfo() {
                               checked={hasCondicionMed}
                               onChange={() => setHasCondicionMed(true)}
                               className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 focus:ring-blue-500 border-gray-300 mr-3 sm:mr-4"
-                              disabled={formState.isLoading}
+                              disabled={formState.isLoading || isRegistered}
                             />
                             <span className="text-sm sm:text-base font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Sí, tengo una condición médica</span>
                           </label>
@@ -232,7 +283,7 @@ export default function UserInfo() {
                               checked={!hasCondicionMed}
                               onChange={() => setHasCondicionMed(false)}
                               className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 focus:ring-blue-500 border-gray-300 mr-3 sm:mr-4"
-                              disabled={formState.isLoading}
+                              disabled={formState.isLoading || isRegistered}
                             />
                             <span className="text-sm sm:text-base font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">No tengo condiciones médicas</span>
                           </label>
@@ -247,7 +298,8 @@ export default function UserInfo() {
                           <textarea
                             name="condicion_med"
                             rows={4}
-                            disabled={formState.isLoading}
+                            disabled={formState.isLoading || isRegistered}
+                            defaultValue={userData?.condicion_med || ''}
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-white shadow-sm hover:shadow-md resize-none font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                             placeholder="Por favor, describe tu condición médica, medicamentos que tomas, restricciones de actividad física, etc. Esta información nos ayudará a brindarte el mejor servicio y garantizar tu seguridad..."
                           />
@@ -266,7 +318,7 @@ export default function UserInfo() {
                   <div className="flex justify-end pt-6 sm:pt-8 border-t-2 border-gray-100">
                     <button
                       type="submit"
-                      disabled={formState.isLoading}
+                      disabled={formState.isLoading || isRegistered}
                       className="group bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white py-4 sm:py-5 px-6 sm:px-10 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center gap-3 sm:gap-4 font-poppins disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
                       <SaveIcon className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-200" />
@@ -274,12 +326,44 @@ export default function UserInfo() {
                       <span className="sm:hidden">Guardar</span>
                     </button>
                   </div>
-                </form>
+                  </form>
+                )}
               </div>
             </div>
           </div>
         </main>
       </div>
+
+      {/* Modal de confirmación */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-lg w-full mx-4 shadow-2xl">
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">Confirmación de registro</h3>
+            <p className="text-slate-700 text-base sm:text-lg mb-6">
+              Una vez tus datos sean almacenados, no se podrán editar. Por favor, rellena con sinceridad, evita un baneo permanente del sistema.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-end">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-6 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmSubmit}
+                disabled={!canConfirm || formState.isLoading}
+                className={`px-6 py-2.5 rounded-xl font-medium text-white transition-all duration-300 ${
+                  canConfirm 
+                    ? 'bg-blue-600 hover:bg-blue-700 opacity-100' 
+                    : 'bg-slate-400 cursor-not-allowed opacity-50'
+                }`}
+              >
+                {canConfirm ? 'Confirmar registro' : 'Espere 5 segundos...'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
