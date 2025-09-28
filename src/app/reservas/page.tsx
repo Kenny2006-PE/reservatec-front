@@ -67,7 +67,7 @@ export default function ReservasPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col lg:flex-row font-inter">
-      <Sidebar currentPath="reservas" />
+      <Sidebar currentPath="reservas" userType="estudiante" />
 
       {/* Contenido principal */}
       <div className="flex-1 flex flex-col w-full lg:w-auto">

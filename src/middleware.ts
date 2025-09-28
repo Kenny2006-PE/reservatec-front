@@ -6,8 +6,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Rutas que requieren autenticación
-const protectedRoutes = ['/user-info', '/reservas'];
+// Rutas que requieren autenticación de estudiante
+const protectedStudentRoutes = ['/user-info', '/reservas'];
+// Rutas del encargado (por ahora permitidas sin autenticación específica)
+const encargadoRoutes = ['/encargado'];
 // Rutas que solo son accesibles sin autenticación
 const authRoutes = ['/'];
 
@@ -15,8 +17,13 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt');
   const { pathname } = request.nextUrl;
 
-  // Redirige a login si intenta acceder a ruta protegida sin autenticación
-  if (protectedRoutes.some(route => pathname.startsWith(route)) && !token) {
+  // Permitir acceso a rutas del encargado (sin autenticación por ahora)
+  if (encargadoRoutes.some(route => pathname.startsWith(route))) {
+    return NextResponse.next();
+  }
+
+  // Redirige a login si intenta acceder a ruta protegida de estudiante sin autenticación
+  if (protectedStudentRoutes.some(route => pathname.startsWith(route)) && !token) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 

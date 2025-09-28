@@ -47,14 +47,52 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Botón de Google */}
-          <button 
-            onClick={() => AuthService.initiateGoogleLogin()}
-            className="group w-full bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-xl sm:rounded-2xl py-4 sm:py-5 lg:py-6 px-6 sm:px-8 flex items-center justify-center gap-4 sm:gap-5 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-          >
-            <GoogleIcon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 group-hover:scale-110 transition-transform duration-200" />
-            <span className="text-slate-700 font-semibold text-lg sm:text-xl lg:text-2xl tracking-wide">Acceder con Google</span>
-          </button>
+          {/* Selección de tipo de usuario */}
+          <div className="space-y-4 sm:space-y-5">
+            {/* Título */}
+            <div className="text-center mb-6">
+              <h3 className="text-slate-700 font-semibold text-lg sm:text-xl mb-2">Selecciona tu tipo de acceso</h3>
+              <div className="w-16 h-1 bg-blue-600 mx-auto rounded-full"></div>
+            </div>
+
+            {/* Botón Estudiante */}
+            <button 
+              onClick={() => AuthService.initiateGoogleLogin()}
+              className="group w-full bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl sm:rounded-2xl py-4 sm:py-5 lg:py-6 px-6 sm:px-8 flex items-center justify-center gap-4 sm:gap-5 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <GoogleIcon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 group-hover:scale-110 transition-transform duration-200" />
+              <div className="text-left">
+                <div className="text-slate-700 font-semibold text-lg sm:text-xl lg:text-2xl tracking-wide">Estudiante</div>
+                <div className="text-slate-500 text-sm sm:text-base">Acceder con Google</div>
+              </div>
+            </button>
+
+            {/* Separador */}
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500 font-medium">o</span>
+              </div>
+            </div>
+
+            {/* Botón Encargado */}
+            <button 
+              onClick={() => window.location.href = '/encargado'}
+              className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-2 border-blue-600 hover:border-blue-700 rounded-xl sm:rounded-2xl py-4 sm:py-5 lg:py-6 px-6 sm:px-8 flex items-center justify-center gap-4 sm:gap-5 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-white"
+            >
+              <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <div className="font-semibold text-lg sm:text-xl lg:text-2xl tracking-wide">Encargado</div>
+                <div className="text-blue-100 text-sm sm:text-base">Panel de administración</div>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
 
