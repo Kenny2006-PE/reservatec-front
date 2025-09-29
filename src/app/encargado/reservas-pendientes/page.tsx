@@ -1,159 +1,153 @@
-/**
- * @page Reservas Pendientes - Encargado
- * @description Página para gestionar las solicitudes de reserva pendientes
- * @route /encargado/reservas-pendientes
- */
+﻿"use client";
 
-"use client";
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SidebarEncargado from '@/components/Sidebar/SidebarEncargado';
+import { ReservationService, ReservationResponse } from '@/services/reservation.service';
 
 export default function ReservasPendientesPage() {
-  const [currentPath] = useState('reservas-pendientes');
+  const [reservasPendientes, setReservasPendientes] = useState<ReservationResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState<number | null>(null);
 
-  // Datos de ejemplo basados en la imagen
-  const reservasPendientes = [
-    {
-      id: 1,
-      area: 'Fútbol 1',
-      fecha: 'domingo, 19 de enero de 2025',
-      horario: '10:00 - 11:00',
-      estudiante: 'Carlos Mendoza',
-      dni: '12345678',
-      codigoInstitucional: 'EST001',
-      participantes: 8,
-      materialDeportivo: 'Solicitado',
-      estado: 'Pendiente'
-    },
-    {
-      id: 2,
-      area: 'Frontón',
-      fecha: 'lunes, 20 de enero de 2025',
-      horario: '14:00 - 15:00',
-      estudiante: 'María García',
-      dni: '87654321',
-      codigoInstitucional: 'EST002',
-      participantes: 4,
-      materialDeportivo: 'No solicitado',
-      estado: 'Pendiente'
+  useEffect(() => {
+    loadPendingReservations();
+  }, []);
+
+  const loadPendingReservations = async () => {
+    try {
+      setLoading(true);
+      const response = await ReservationService.getPendingReservations();
+      if (response.success && response.data) {
+        setReservasPendientes(response.data);
+      }
+    } catch (error) {
+      console.error('Error al cargar reservas:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const handleAceptar = (id: number) => {
-    console.log('Aceptar reserva:', id);
-    // Aquí iría la lógica para aceptar la reserva
   };
 
-  const handleRechazar = (id: number) => {
-    console.log('Rechazar reserva:', id);
-    // Aquí iría la lógica para rechazar la reserva
+  const handleApprove = async (id: number) => {
+    try {
+      setProcessing(id);
+      await ReservationService.approveReservation(id);
+      await loadPendingReservations();
+    } catch (error) {
+      console.error('Error al aprobar:', error);
+      alert('Error al aprobar la reserva');
+    } finally {
+      setProcessing(null);
+    }
   };
 
-  const handleVerDetalle = (id: number) => {
-    console.log('Ver detalle:', id);
-    // Aquí iría la lógica para ver más detalles
+  const handleReject = async (id: number) => {
+    try {
+      setProcessing(id);
+      const comentario = prompt('Comentario de rechazo (opcional):');
+      await ReservationService.rejectReservation(id, comentario || undefined);
+      await loadPendingReservations();
+    } catch (error) {
+      console.error('Error al rechazar:', error);
+      alert('Error al rechazar la reserva');
+    } finally {
+      setProcessing(null);
+    }
   };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <SidebarEncargado currentPath="reservas-pendientes" />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando reservas pendientes...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <SidebarEncargado currentPath={currentPath} />
+    <div className="flex h-screen bg-gray-100">
+      <SidebarEncargado currentPath="reservas-pendientes" />
       
-      {/* Contenido principal */}
-      <div className="flex-1 lg:ml-0">
-        {/* Contenido */}
-        <div className="p-6 lg:p-8">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Reservas Pendientes</h1>
-            <p className="text-gray-600">Gestiona las solicitudes de reserva de los usuarios</p>
-          </div>
+      <div className="flex-1 p-8 overflow-y-auto">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">
+            Reservas Pendientes
+          </h1>
 
-          {/* Lista de reservas pendientes */}
-          <div className="space-y-6">
-            {reservasPendientes.map((reserva) => (
-              <div key={reserva.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                {/* Header de la card */}
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{reserva.area}</h3>
-                    <p className="text-gray-600 text-sm">{reserva.fecha} - {reserva.horario}</p>
+          {reservasPendientes.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg shadow">
+              <div className="text-gray-400 text-6xl mb-4">📋</div>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">
+                No hay reservas pendientes
+              </h3>
+              <p className="text-gray-500">
+                Todas las reservas han sido procesadas.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {reservasPendientes.map((reserva) => (
+                <div key={reserva.id_reserva} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                      <h3 className="font-semibold text-gray-700 mb-1">Área Deportiva</h3>
+                      <p className="text-gray-900">{reserva.area_nombre}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-700 mb-1">Fecha</h3>
+                      <p className="text-gray-900">{formatDate(reserva.fecha)}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-700 mb-1">Horario</h3>
+                      <p className="text-gray-900">{reserva.hora_inicio} - {reserva.hora_fin}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-700 mb-1">Participantes</h3>
+                      <p className="text-gray-900">{reserva.participantes}</p>
+                    </div>
                   </div>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                    {reserva.estado}
-                  </span>
-                </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <h3 className="font-semibold text-gray-700 mb-1">Estudiante</h3>
+                      <p className="text-gray-900">{reserva.usuario_nombre || 'Usuario'}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-700 mb-1">Material Deportivo</h3>
+                      <p className="text-gray-900">{reserva.material ? 'Solicitado' : 'No solicitado'}</p>
+                    </div>
+                  </div>
 
-                {/* Información del estudiante */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Estudiante:</p>
-                    <p className="font-medium text-gray-900">{reserva.estudiante}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">DNI:</p>
-                    <p className="font-medium text-gray-900">{reserva.dni}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Código Institucional:</p>
-                    <p className="font-medium text-gray-900">{reserva.codigoInstitucional}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Participantes:</p>
-                    <p className="font-medium text-gray-900">{reserva.participantes}</p>
-                  </div>
-                </div>
-
-                {/* Material deportivo */}
-                <div className="mb-6">
-                  <p className="text-sm text-gray-500 mb-2">Material deportivo:</p>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    reserva.materialDeportivo === 'Solicitado' 
-                      ? 'bg-blue-100 text-blue-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {reserva.materialDeportivo}
-                  </span>
-                </div>
-
-                {/* Botones de acción */}
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => handleVerDetalle(reserva.id)}
-                    className="text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors duration-200"
-                  >
-                    Ver Detalle
-                  </button>
-                  <div className="flex gap-3 ml-auto">
-                    <button 
-                      onClick={() => handleRechazar(reserva.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex-1 min-w-[100px]"
+                  <div className="flex space-x-4 mt-6">
+                    <button
+                      onClick={() => handleApprove(reserva.id_reserva)}
+                      disabled={processing === reserva.id_reserva}
+                      className="flex-1 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition duration-200 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
-                      Rechazar
+                      {processing === reserva.id_reserva ? 'Procesando...' : '✓ Aprobar'}
                     </button>
-                    <button 
-                      onClick={() => handleAceptar(reserva.id)}
-                      className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex-1 min-w-[100px]"
+                    <button
+                      onClick={() => handleReject(reserva.id_reserva)}
+                      disabled={processing === reserva.id_reserva}
+                      className="flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition duration-200 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
-                      Aceptar
+                      {processing === reserva.id_reserva ? 'Procesando...' : '✗ Rechazar'}
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Mensaje si no hay reservas pendientes */}
-          {reservasPendientes.length === 0 && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No hay reservas pendientes</h3>
-              <p className="text-gray-600">Todas las solicitudes han sido procesadas.</p>
+              ))}
             </div>
           )}
         </div>

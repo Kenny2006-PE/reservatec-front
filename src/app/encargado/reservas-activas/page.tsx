@@ -1,92 +1,137 @@
-/**
- * @page Reservas Activas - Encargado
- * @description Página para gestionar las reservas activas
- * @route /encargado/reservas-activas
- */
+﻿"use client";
 
-"use client";
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SidebarEncargado from '@/components/Sidebar/SidebarEncargado';
+import { ReservationService, ReservationResponse } from '@/services/reservation.service';
 
 export default function ReservasActivasPage() {
-  const [currentPath] = useState('reservas-activas');
+  const [reservasActivas, setReservasActivas] = useState<ReservationResponse[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Datos de ejemplo basados en la imagen
-  const reservasActivas = [
-    {
-      id: 1,
-      area: 'Fútbol 1',
-      horario: '10:00 - 11:00',
-      usuario: 'Carlos Mendoza',
-      fecha: 'sábado, 18 ene',
-      estado: 'Activa'
-    },
-    {
-      id: 2,
-      area: 'Vóley/Básquet',
-      horario: '14:00 - 15:00',
-      usuario: 'María García',
-      fecha: 'sábado, 18 ene',
-      estado: 'Activa'
-    },
-    {
-      id: 3,
-      area: 'Frontón',
-      horario: '16:00 - 17:00',
-      usuario: 'Ana López',
-      fecha: 'sábado, 18 ene',
-      estado: 'Activa'
-    },
-    {
-      id: 4,
-      area: 'Fútbol 2',
-      horario: '09:00 - 10:00',
-      usuario: 'José Rodríguez',
-      fecha: 'sábado, 18 ene',
-      estado: 'Activa'
+  useEffect(() => {
+    loadActiveReservations();
+  }, []);
+
+  const loadActiveReservations = async () => {
+    try {
+      setLoading(true);
+      const response = await ReservationService.getActiveReservationsToday();
+      if (response.success && response.data) {
+        setReservasActivas(response.data);
+      }
+    } catch (error) {
+      console.error('Error al cargar reservas activas:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'short'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <SidebarEncargado currentPath="reservas-activas" />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando reservas activas...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <SidebarEncargado currentPath={currentPath} />
+    <div className="flex h-screen bg-gray-100">
+      <SidebarEncargado currentPath="reservas-activas" />
       
-      {/* Contenido principal */}
-      <div className="flex-1 lg:ml-0">
-        {/* Contenido */}
-        <div className="p-6 lg:p-8">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Reservas Activas</h1>
-            <p className="text-gray-600">Visualiza las reservas actualmente en curso</p>
-          </div>
+      <div className="flex-1 p-8 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">
+            Reservas Activas
+          </h1>
 
-          {/* Lista de reservas */}
-          <div className="space-y-4">
-            {reservasActivas.map((reserva) => (
-              <div key={reserva.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{reserva.area}</h3>
-                    <div className="text-gray-600 space-y-1">
-                      <p className="text-sm">{reserva.horario} - {reserva.usuario}</p>
-                      <p className="text-sm">{reserva.fecha}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                      {reserva.estado}
-                    </span>
-                    <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                      Cancelar
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {reservasActivas.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg shadow">
+              <div className="text-gray-400 text-6xl mb-4">📅</div>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">
+                No hay reservas activas
+              </h3>
+              <p className="text-gray-500">
+                No hay reservas aprobadas en este momento.
+              </p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Área
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Fecha
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Horario
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Usuario
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Participantes
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Estado
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {reservasActivas.map((reserva) => (
+                    <tr key={reserva.id_reserva} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {reserva.area_nombre}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {formatDate(reserva.fecha)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {reserva.hora_inicio} - {reserva.hora_fin}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {reserva.usuario_nombre || 'Usuario'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {reserva.participantes}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Activa
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

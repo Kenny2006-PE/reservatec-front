@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Rutas que requieren autenticación de estudiante
-const protectedStudentRoutes = ['/user-info', '/reservas'];
+const protectedStudentRoutes = ['/user-info', '/reservas', '/mis-reservas'];
 // Rutas del encargado (por ahora permitidas sin autenticación específica)
 const encargadoRoutes = ['/encargado'];
 // Rutas que solo son accesibles sin autenticación
