@@ -30,63 +30,55 @@ export default function Sidebar({ currentPath, userType = 'estudiante' }: Sideba
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  // Configuración de menús según tipo de usuario
+  // Configuración de menús según tipo de usuario - MENÚ FIJO PARA ENCARGADO
   const getMenuItems = () => {
     if (userType === 'encargado') {
       return [
         {
-          href: '/encargado',
-          label: 'Dashboard',
-          description: 'Panel principal de gestión',
-          icon: BarChartIcon,
-          color: 'from-purple-500 to-purple-600',
-          isActive: currentPath === 'encargado'
-        },
-        {
           href: '/encargado/reservas-activas',
-          label: 'Reservas Activas',
-          description: 'Gestionar reservas en curso',
+          label: 'Reservas Ac...',
+          description: 'Reservas confirmadas y en curso',
           icon: CheckCircleIcon,
-          color: 'from-blue-500 to-blue-600',
+          color: 'from-green-500 to-green-600',
           isActive: currentPath.includes('reservas-activas')
         },
         {
           href: '/encargado/reservas-pendientes',
-          label: 'Reservas Pendientes',
-          description: 'Aprobar o rechazar solicitudes',
+          label: 'Reservas Pe...',
+          description: 'Solicitudes por aprobar',
           icon: XCircleIcon,
           color: 'from-yellow-500 to-yellow-600',
           isActive: currentPath.includes('reservas-pendientes')
         },
         {
           href: '/encargado/reportes',
-          label: 'Reportes Generales',
-          description: 'Estadísticas y análisis',
+          label: 'Reportes Ge...',
+          description: 'Informes y estadísticas',
           icon: FileTextIcon,
-          color: 'from-indigo-500 to-indigo-600',
+          color: 'from-purple-500 to-purple-600',
           isActive: currentPath.includes('reportes')
         },
         {
           href: '/encargado/usuarios',
           label: 'Usuarios',
-          description: 'Gestión de usuarios del sistema',
+          description: 'Gestión de estudiantes',
           icon: UsersIcon,
-          color: 'from-emerald-500 to-emerald-600',
+          color: 'from-blue-500 to-blue-600',
           isActive: currentPath.includes('usuarios')
         },
         {
           href: '/encargado/formulario-informe',
-          label: 'Formulario de Informe',
-          description: 'Crear reportes detallados',
+          label: 'Formulario d...',
+          description: 'Crear y gestionar informes',
           icon: FileTextIcon,
-          color: 'from-rose-500 to-rose-600',
+          color: 'from-blue-500 to-blue-600',
           isActive: currentPath.includes('formulario-informe')
         },
         {
           href: '/encargado/estadisticas',
           label: 'Estadísticas',
-          description: 'Métricas y análisis avanzado',
-          icon: TrophyIcon,
+          description: 'Análisis y métricas del sistema',
+          icon: BarChartIcon,
           color: 'from-red-500 to-red-600',
           isActive: currentPath.includes('estadisticas')
         },
@@ -95,7 +87,7 @@ export default function Sidebar({ currentPath, userType = 'estudiante' }: Sideba
           label: 'Áreas',
           description: 'Gestión de espacios deportivos',
           icon: SettingsIcon,
-          color: 'from-gray-500 to-gray-600',
+          color: 'from-teal-500 to-teal-600',
           isActive: currentPath.includes('areas')
         }
       ];
@@ -110,6 +102,14 @@ export default function Sidebar({ currentPath, userType = 'estudiante' }: Sideba
         icon: CalendarIcon,
         color: 'from-blue-500 to-blue-600',
         isActive: currentPath === 'reservas' || currentPath === 'cancha'
+      },
+      {
+        href: '/mis-reservas',
+        label: 'Mis Reservas',
+        description: 'Ve todas tus reservas y su estado',
+        icon: CheckCircleIcon,
+        color: 'from-purple-500 to-purple-600',
+        isActive: currentPath === 'mis-reservas'
       },
       {
         href: '/user-info',

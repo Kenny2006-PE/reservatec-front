@@ -6,158 +6,270 @@
 
 "use client";
 
-import { useState } from 'react';
-import SidebarEncargado from '@/components/Sidebar/SidebarEncargado';
+import { useState, useEffect } from 'react';
+import Sidebar from '@/components/Sidebar';
+import Header from '@/components/Header';
+import { ReservationService } from '@/services/reservation.service';
+import { Reserva } from '@/types/reservation.types';
+import { CheckCircleIcon, XCircleIcon } from '@/components/Icons';
 
 export default function ReservasPendientesPage() {
-  const [currentPath] = useState('reservas-pendientes');
+  const [reservasPendientes, setReservasPendientes] = useState<Reserva[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedReserva, setSelectedReserva] = useState<number | null>(null);
+  const [comentarioRechazo, setComentarioRechazo] = useState('');
 
-  // Datos de ejemplo basados en la imagen
-  const reservasPendientes = [
-    {
-      id: 1,
-      area: 'Fútbol 1',
-      fecha: 'domingo, 19 de enero de 2025',
-      horario: '10:00 - 11:00',
-      estudiante: 'Carlos Mendoza',
-      dni: '12345678',
-      codigoInstitucional: 'EST001',
-      participantes: 8,
-      materialDeportivo: 'Solicitado',
-      estado: 'Pendiente'
-    },
-    {
-      id: 2,
-      area: 'Frontón',
-      fecha: 'lunes, 20 de enero de 2025',
-      horario: '14:00 - 15:00',
-      estudiante: 'María García',
-      dni: '87654321',
-      codigoInstitucional: 'EST002',
-      participantes: 4,
-      materialDeportivo: 'No solicitado',
-      estado: 'Pendiente'
+  // Cargar reservas pendientes al montar el componente
+  useEffect(() => {
+    cargarReservasPendientes();
+  }, []);
+
+  const cargarReservasPendientes = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await ReservationService.getReservasPendientes();
+      setReservasPendientes(response.data || []);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error al cargar reservas');
+      console.error('Error cargando reservas pendientes:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const handleAceptar = (id: number) => {
-    console.log('Aceptar reserva:', id);
-    // Aquí iría la lógica para aceptar la reserva
   };
 
-  const handleRechazar = (id: number) => {
-    console.log('Rechazar reserva:', id);
-    // Aquí iría la lógica para rechazar la reserva
+  
+
+  const handleAceptar = async (reservaId: number) => {
+    try {
+      await ReservationService.aceptarReserva(reservaId);
+      
+      // Remover la reserva de la lista de pendientes
+      setReservasPendientes(prev => prev.filter(r => r.id_reserva !== reservaId));
+      alert('Reserva aceptada exitosamente');
+    } catch (error) {
+      alert('Error al aceptar la reserva: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      console.error(error);
+    }
   };
 
-  const handleVerDetalle = (id: number) => {
-    console.log('Ver detalle:', id);
-    // Aquí iría la lógica para ver más detalles
+  const handleRechazar = (reservaId: number) => {
+    setSelectedReserva(reservaId);
+    setShowRejectModal(true);
+  };
+
+  const confirmarRechazo = async () => {
+    if (!selectedReserva || !comentarioRechazo.trim()) return;
+
+    try {
+      await ReservationService.rechazarReserva(selectedReserva, comentarioRechazo);
+      
+      // Remover la reserva de la lista de pendientes
+      setReservasPendientes(prev => prev.filter(r => r.id_reserva !== selectedReserva));
+      setShowRejectModal(false);
+      setSelectedReserva(null);
+      setComentarioRechazo('');
+      alert('Reserva rechazada exitosamente');
+    } catch (error) {
+      alert('Error al rechazar la reserva: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      console.error(error);
+    }
+  };
+
+  const formatearFecha = (fecha: string) => {
+    return new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <SidebarEncargado currentPath={currentPath} />
-      
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col lg:flex-row font-inter">
+      <Sidebar currentPath="reservas-pendientes" userType="encargado" />
+
       {/* Contenido principal */}
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 flex flex-col w-full lg:w-auto">
+        <Header 
+          title="Reservas Pendientes"
+          description="Gestiona las solicitudes de reserva de los usuarios"
+        />
+
         {/* Contenido */}
-        <div className="p-6 lg:p-8">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Reservas Pendientes</h1>
-            <p className="text-gray-600">Gestiona las solicitudes de reserva de los usuarios</p>
-          </div>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          <div className="max-w-7xl mx-auto">
 
-          {/* Lista de reservas pendientes */}
-          <div className="space-y-6">
-            {reservasPendientes.map((reserva) => (
-              <div key={reserva.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                {/* Header de la card */}
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{reserva.area}</h3>
-                    <p className="text-gray-600 text-sm">{reserva.fecha} - {reserva.horario}</p>
-                  </div>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                    {reserva.estado}
-                  </span>
-                </div>
-
-                {/* Información del estudiante */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Estudiante:</p>
-                    <p className="font-medium text-gray-900">{reserva.estudiante}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">DNI:</p>
-                    <p className="font-medium text-gray-900">{reserva.dni}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Código Institucional:</p>
-                    <p className="font-medium text-gray-900">{reserva.codigoInstitucional}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Participantes:</p>
-                    <p className="font-medium text-gray-900">{reserva.participantes}</p>
-                  </div>
-                </div>
-
-                {/* Material deportivo */}
-                <div className="mb-6">
-                  <p className="text-sm text-gray-500 mb-2">Material deportivo:</p>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    reserva.materialDeportivo === 'Solicitado' 
-                      ? 'bg-blue-100 text-blue-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {reserva.materialDeportivo}
-                  </span>
-                </div>
-
-                {/* Botones de acción */}
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => handleVerDetalle(reserva.id)}
-                    className="text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors duration-200"
-                  >
-                    Ver Detalle
-                  </button>
-                  <div className="flex gap-3 ml-auto">
-                    <button 
-                      onClick={() => handleRechazar(reserva.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex-1 min-w-[100px]"
-                    >
-                      Rechazar
-                    </button>
-                    <button 
-                      onClick={() => handleAceptar(reserva.id)}
-                      className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex-1 min-w-[100px]"
-                    >
-                      Aceptar
-                    </button>
-                  </div>
-                </div>
+            {/* Estado de carga */}
+            {loading && (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-slate-600">Cargando reservas pendientes...</p>
               </div>
-            ))}
-          </div>
+            )}
 
-          {/* Mensaje si no hay reservas pendientes */}
-          {reservasPendientes.length === 0 && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            {/* Error */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+                <p className="text-red-600 font-medium">{error}</p>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No hay reservas pendientes</h3>
-              <p className="text-gray-600">Todas las solicitudes han sido procesadas.</p>
-            </div>
-          )}
-        </div>
+            )}
+
+            {/* Lista de reservas pendientes */}
+            {!loading && !error && (
+              <div className="space-y-6">
+                {reservasPendientes.length === 0 ? (
+                  <div className="bg-white/90 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-200/50 p-6 sm:p-8 lg:p-12 text-center">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                      <CheckCircleIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 font-poppins">No hay reservas pendientes</h3>
+                    <p className="text-slate-600 text-sm sm:text-base">Todas las reservas han sido procesadas.</p>
+                  </div>
+                ) : (
+                  reservasPendientes.map((reserva) => (
+                    <div key={reserva.id_reserva} className="bg-white/90 backdrop-blur-xl rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
+                      
+                      {/* Header de la reserva */}
+                      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 text-white">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold font-poppins mb-1 sm:mb-2 truncate">{reserva.area_nombre}</h3>
+                            <p className="text-slate-200 text-xs sm:text-sm lg:text-base break-words">
+                              <span className="block sm:inline">{formatearFecha(reserva.fecha)}</span>
+                              <span className="hidden sm:inline mx-1">•</span>
+                              <span className="block sm:inline">{reserva.horario_inicio} - {reserva.horario_fin}</span>
+                            </p>
+                          </div>
+                          <span className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 shrink-0">
+                            Pendiente
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Contenido de la reserva */}
+                      <div className="p-4 sm:p-6 lg:p-8">
+                        
+                        {/* Información del estudiante */}
+                        <div className="mb-6 sm:mb-8">
+                          <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 font-poppins">Información del Estudiante</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+                            <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200">
+                              <p className="text-xs sm:text-sm text-slate-500 mb-1 sm:mb-2">Estudiante</p>
+                              <p className="font-bold text-slate-900 font-poppins text-sm sm:text-base truncate">
+                                {reserva.usuario_nombre} {reserva.usuario_apellido}
+                              </p>
+                            </div>
+                            <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200">
+                              <p className="text-xs sm:text-sm text-slate-500 mb-1 sm:mb-2">DNI</p>
+                              <p className="font-bold text-slate-900 font-poppins text-sm sm:text-base">{reserva.usuario_dni}</p>
+                            </div>
+                            <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200">
+                              <p className="text-xs sm:text-sm text-slate-500 mb-1 sm:mb-2">Código Institucional</p>
+                              <p className="font-bold text-slate-900 font-poppins text-sm sm:text-base">{reserva.usuario_codigo}</p>
+                            </div>
+                            <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200">
+                              <p className="text-xs sm:text-sm text-slate-500 mb-1 sm:mb-2">Participantes</p>
+                              <p className="font-bold text-slate-900 font-poppins text-sm sm:text-base">{reserva.participantes}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Material deportivo */}
+                        <div className="mb-6 sm:mb-8">
+                          <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 font-poppins">Material Deportivo</h4>
+                          <span className={`inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold ${
+                            reserva.material 
+                              ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                              : 'bg-gray-100 text-gray-800 border border-gray-200'
+                          }`}>
+                            {reserva.material ? 'Solicitado' : 'No solicitado'}
+                          </span>
+                        </div>
+
+                        {/* Botones de acción */}
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                          <button 
+                            onClick={() => handleRechazar(reserva.id_reserva)}
+                            className="flex-1 flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-red-500 hover:bg-red-600 text-white font-bold text-sm sm:text-base rounded-lg sm:rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-poppins"
+                          >
+                            <XCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                            <span className="truncate">Rechazar Solicitud</span>
+                          </button>
+                          <button 
+                            onClick={() => handleAceptar(reserva.id_reserva)}
+                            className="flex-1 flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-sm sm:text-base rounded-lg sm:rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-poppins"
+                          >
+                            <CheckCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                            <span className="truncate">Aceptar Reserva</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </main>
       </div>
+
+      {/* Modal de rechazo */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
+            
+            {/* Header del modal */}
+            <div className="bg-gradient-to-r from-red-600 to-red-700 px-4 sm:px-6 py-3 sm:py-4 text-white rounded-t-xl sm:rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base sm:text-xl font-bold font-poppins truncate pr-2">Rechazar Reserva</h3>
+                <button
+                  onClick={() => setShowRejectModal(false)}
+                  className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-all duration-200 flex-shrink-0"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6">
+              <p className="text-slate-700 mb-3 sm:mb-4 text-sm sm:text-base">
+                Por favor, proporciona un comentario explicando el motivo del rechazo:
+              </p>
+              
+              <textarea
+                value={comentarioRechazo}
+                onChange={(e) => setComentarioRechazo(e.target.value)}
+                placeholder="Escribe el motivo del rechazo..."
+                className="w-full p-3 border-2 border-slate-200 rounded-lg sm:rounded-xl focus:border-red-500 focus:outline-none transition-all duration-300 resize-none text-sm sm:text-base"
+                rows={3}
+              />
+
+              {/* Botones */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:mt-6">
+                <button
+                  onClick={() => setShowRejectModal(false)}
+                  className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg sm:rounded-xl transition-all duration-300 font-poppins text-sm sm:text-base"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmarRechazo}
+                  disabled={!comentarioRechazo.trim()}
+                  className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg sm:rounded-xl transition-all duration-300 font-poppins text-sm sm:text-base"
+                >
+                  Confirmar Rechazo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

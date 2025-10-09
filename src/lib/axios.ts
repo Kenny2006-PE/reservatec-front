@@ -7,14 +7,14 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
-  withCredentials: true
+  withCredentials: true, // Esto permite que las cookies se envíen automáticamente
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
+// No necesitamos interceptor de request ya que las cookies se manejan automáticamente
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jwt');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
   return config;
 });
 
@@ -22,7 +22,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('jwt');
+      // Redirigir al login si hay error de autenticación
       window.location.href = '/';
     }
     return Promise.reject(error);

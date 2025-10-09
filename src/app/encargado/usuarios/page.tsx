@@ -6,11 +6,14 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import SidebarEncargado from '@/components/Sidebar/SidebarEncargado';
 
 export default function UsuariosPage() {
   const [currentPath] = useState('usuarios');
+  const [query, setQuery] = useState('');
+  const [selectedCarrera, setSelectedCarrera] = useState('');
+  const [selectedEstado, setSelectedEstado] = useState('');
 
   // Datos de ejemplo
   const usuarios = [
@@ -45,6 +48,19 @@ export default function UsuariosPage() {
       estado: 'Inactivo'
     }
   ];
+
+  const filteredUsers = useMemo(() => {
+    return usuarios.filter(u => {
+      const matchesQuery = query.trim() === '' ||
+        u.nombre.toLowerCase().includes(query.toLowerCase()) ||
+        u.email.toLowerCase().includes(query.toLowerCase());
+
+      const matchesCarrera = selectedCarrera === '' || u.carrera === selectedCarrera;
+      const matchesEstado = selectedEstado === '' || u.estado === selectedEstado;
+
+      return matchesQuery && matchesCarrera && matchesEstado;
+    });
+  }, [query, selectedCarrera, selectedEstado]);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -101,23 +117,33 @@ export default function UsuariosPage() {
                 type="text"
                 placeholder="Buscar usuarios por nombre o email..."
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">Carrera:</label>
-              <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <select
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                value={selectedCarrera}
+                onChange={(e) => setSelectedCarrera(e.target.value)}
+              >
                 <option value="">Todas las carreras</option>
-                <option value="software">Ingeniería de Software</option>
-                <option value="industrial">Administración Industrial</option>
-                <option value="mecatronica">Mecatrónica</option>
+                <option value="Ingeniería de Software">Ingeniería de Software</option>
+                <option value="Administración Industrial">Administración Industrial</option>
+                <option value="Mecatrónica">Mecatrónica</option>
               </select>
             </div>
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">Estado:</label>
-              <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <select
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                value={selectedEstado}
+                onChange={(e) => setSelectedEstado(e.target.value)}
+              >
                 <option value="">Todos</option>
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
               </select>
             </div>
           </div>
@@ -139,7 +165,7 @@ export default function UsuariosPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {usuarios.map((usuario) => (
+                  {filteredUsers.map((usuario) => (
                     <tr key={usuario.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">

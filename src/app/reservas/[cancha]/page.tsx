@@ -1,34 +1,35 @@
 /**
- * @page Sports Area Detail
- * @description Página de detalle y reserva de área deportiva específica
+ * @page Reserva Individual
+ * @description Página para realizar reserva de un área específica
  * @route /reservas/[cancha]
- * @param cancha - Identificador del área deportiva
  * @protected Requiere autenticación
  */
 
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
-import { useParams } from 'next/navigation';
 import { useUserPicture } from '@/hooks/useUserPicture';
-import { LogOutIcon, ChevronRightIcon, CalendarIcon, ClockIcon, UsersIcon } from '@/components/Icons';
-import { AuthService } from '@/services/auth';
+import { CalendarIcon, ClockIcon, UsersIcon, CheckCircleIcon } from '@/components/Icons';
+import { ReservationService } from '@/services/reservation.service';
 
-export default function ReservaCanchaPage() {
+export default function ReservaIndividualPage() {
   const params = useParams();
-  const cancha = params.cancha as string;
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const router = useRouter();
   const userPicture = useUserPicture();
+  const cancha = params.cancha as string;
+
+  // Estados
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedTime, setSelectedTime] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
-  const [participants, setParticipants] = useState<number>(1);
+  const [selectedHorario, setSelectedHorario] = useState<string | null>(null);
+  const [participantes, setParticipantes] = useState<number>(1);
   const [includeMaterial, setIncludeMaterial] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptConditions, setAcceptConditions] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Información de las canchas
   const canchasInfo = {
@@ -64,47 +65,50 @@ export default function ReservaCanchaPage() {
     }
   };
 
-  // Horarios disponibles
-  const timeSlots = [
-    { time: '08:00-09:00', available: true },
-    { time: '09:00-10:00', available: true },
-    { time: '10:00-11:00', available: true },
-    { time: '11:00-12:00', available: true },
-    { time: '12:00-13:00', available: true },
-    { time: '14:00-15:00', available: false }, // Ocupado
-    { time: '15:00-16:00', available: false }, // Ocupado
-    { time: '16:00-17:00', available: true }
-  ];
+  // Horarios disponibles (se cargan dinámicamente)
+  const [timeSlots, setTimeSlots] = useState<{id: number, time: string, available: boolean}[]>([]);
 
   const canchaInfo = canchasInfo[cancha as keyof typeof canchasInfo] || canchasInfo.futbol1;
 
-  // Generar fechas de la semana actual
+  // Generar fechas desde hoy hacia adelante (próximos 7 días)
   const generateWeekDays = () => {
     const today = new Date();
-    const currentDay = today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - currentDay + 1);
-
     const weekDays = [];
-    const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE'];
+    const dayNames = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
     const monthNames = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
 
-    for (let i = 0; i < 5; i++) {
-      const day = new Date(monday);
-      day.setDate(monday.getDate() + i);
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(today);
+      day.setDate(today.getDate() + i);
       
       weekDays.push({
-        name: dayNames[i],
+        name: dayNames[day.getDay()],
         date: day.getDate(),
         month: monthNames[day.getMonth()],
         fullDate: day.toISOString().split('T')[0],
-        isToday: day.toDateString() === today.toDateString()
+        isToday: i === 0
       });
     }
     return weekDays;
   };
 
   const weekDays = generateWeekDays();
+
+  // Cargar horarios disponibles cuando se selecciona una fecha
+  const cargarHorariosDisponibles = async (fecha: string, areaId: number) => {
+    try {
+      const response = await ReservationService.getHorariosDisponibles(areaId, fecha);
+      const horariosFormateados = (response.data || []).map((horario: any) => ({
+        id: horario.id_horario,
+        time: `${horario.hora_inicio.slice(0, 5)}-${horario.hora_fin.slice(0, 5)}`,
+        available: horario.disponible
+      }));
+      setTimeSlots(horariosFormateados);
+    } catch (error) {
+      console.error('Error cargando horarios:', error);
+      setTimeSlots([]);
+    }
+  };
 
   // Reservas actuales de ejemplo
   const reservasActuales = [
@@ -128,42 +132,78 @@ export default function ReservaCanchaPage() {
     }
   ];
 
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
-
   const handleContinueReservation = () => {
     if (selectedDate) {
+      const areaMap: { [key: string]: number } = {
+        'futbol-1': 1,
+        'futbol-2': 2,
+        'fronton': 3,
+        'pingpong': 4,
+        'ludo': 5,
+        'voley-basquet': 6
+      };
+      
+      const areaId = areaMap[cancha] || 1;
+      cargarHorariosDisponibles(selectedDate, areaId);
       setShowModal(true);
     }
   };
 
-  const handleConfirmReservation = () => {
-    if (selectedDate && selectedTime && participants > 0 && acceptTerms) {
-      console.log('Reserva confirmada:', { 
-        cancha, 
-        fecha: selectedDate, 
-        hora: selectedTime, 
-        participantes: participants,
-        material: includeMaterial 
-      });
-      // Aquí iría la lógica para enviar la reserva al backend
-      setShowModal(false);
-      // Resetear el formulario
-      setSelectedDate('');
-      setSelectedTime('');
-      setParticipants(1);
-      setIncludeMaterial(false);
-      setAcceptTerms(false);
+  const handleConfirmReservation = async () => {
+    if (selectedDate && selectedHorario && participantes > 0 && acceptConditions) {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Mapear nombre de cancha al ID del área
+        const areaMap: { [key: string]: number } = {
+          'futbol-1': 1,
+          'futbol-2': 2,
+          'fronton': 3,
+          'pingpong': 4,
+          'ludo': 5,
+          'voley-basquet': 6
+        };
+
+        // Extraer ID del horario del string selectedHorario (formato: "id:hora")
+        const horarioId = parseInt(selectedHorario.split(':')[0]);
+        
+        const reservaData = {
+          id_area: areaMap[cancha] || 1,
+          id_horario: horarioId,
+          fecha: selectedDate,
+          participantes: participantes,
+          material: includeMaterial
+        };
+
+        await ReservationService.crearReserva(reservaData);
+        
+        // Mostrar mensaje de éxito
+        alert('¡Reserva creada exitosamente! Tu solicitud está pendiente de aprobación por el encargado.');
+        
+        // Resetear el formulario
+        setShowModal(false);
+        setSelectedDate('');
+        setSelectedHorario(null);
+        setParticipantes(1);
+        setIncludeMaterial(false);
+        setAcceptConditions(false);
+        
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Error al crear la reserva');
+        console.error('Error creando reserva:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const closeModal = () => {
     setShowModal(false);
-    setSelectedTime('');
-    setParticipants(1);
+    setSelectedHorario(null);
+    setParticipantes(1);
     setIncludeMaterial(false);
-    setAcceptTerms(false);
+    setAcceptConditions(false);
   };
 
   return (
@@ -201,7 +241,7 @@ export default function ReservaCanchaPage() {
                 {/* Selector de día */}
                 <div className="mb-8">
                   <h3 className="text-lg font-bold text-slate-900 mb-6 font-poppins">Selecciona un día</h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
                     {weekDays.map((day) => (
                       <button
                         key={day.fullDate}
@@ -346,12 +386,12 @@ export default function ReservaCanchaPage() {
                   {timeSlots.map((slot) => (
                     <button
                       key={slot.time}
-                      onClick={() => slot.available && setSelectedTime(slot.time)}
+                      onClick={() => slot.available && setSelectedHorario(`${slot.id}:${slot.time}`)}
                       disabled={!slot.available}
                       className={`p-3 rounded-lg border text-sm font-medium transition-all duration-200 ${
                         !slot.available
                           ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                          : selectedTime === slot.time
+                          : selectedHorario === `${slot.id}:${slot.time}`
                           ? 'bg-slate-900 text-white border-slate-900'
                           : 'bg-white text-slate-700 border-gray-300 hover:border-slate-400 hover:bg-gray-50'
                       }`}
@@ -367,16 +407,16 @@ export default function ReservaCanchaPage() {
                 <h4 className="text-sm font-semibold text-slate-900 mb-3">Número de participantes</h4>
                 <div className="flex items-center justify-center gap-4">
                   <button
-                    onClick={() => setParticipants(Math.max(1, participants - 1))}
+                    onClick={() => setParticipantes(Math.max(1, participantes - 1))}
                     className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-slate-700 hover:bg-gray-200 transition-colors text-xl font-bold"
                   >
                     -
                   </button>
                   <div className="w-16 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center bg-white">
-                    <span className="text-xl font-bold text-slate-900">{participants}</span>
+                    <span className="text-xl font-bold text-slate-900">{participantes}</span>
                   </div>
                   <button
-                    onClick={() => setParticipants(Math.min(20, participants + 1))}
+                    onClick={() => setParticipantes(Math.min(20, participantes + 1))}
                     className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-slate-700 hover:bg-gray-200 transition-colors text-xl font-bold"
                   >
                     +
@@ -404,8 +444,8 @@ export default function ReservaCanchaPage() {
                   <input
                     type="checkbox"
                     id="terms"
-                    checked={acceptTerms}
-                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    checked={acceptConditions}
+                    onChange={(e) => setAcceptConditions(e.target.checked)}
                     className="w-5 h-5 text-slate-900 border-gray-300 rounded focus:ring-slate-500 mt-0.5"
                   />
                   <label htmlFor="terms" className="text-sm text-slate-700">
@@ -425,9 +465,9 @@ export default function ReservaCanchaPage() {
               </button>
               <button
                 onClick={handleConfirmReservation}
-                disabled={!selectedTime || !acceptTerms}
+                disabled={!selectedHorario || !acceptConditions}
                 className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-colors ${
-                  selectedTime && acceptTerms
+                  selectedHorario && acceptConditions
                     ? 'bg-slate-900 text-white hover:bg-slate-800'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
