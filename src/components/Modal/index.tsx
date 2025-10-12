@@ -33,7 +33,7 @@ export default function Modal({ isOpen, onClose, title, message, type = 'warning
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-fadeIn">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-slideUp">
         {/* Header con icono */}
         <div className={`${bgColors[type]} border-b-4 ${borderColors[type]} p-6`}>

@@ -10,6 +10,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
+import { useUserPicture } from '@/hooks/useUserPicture';
 import { ReservationService } from '@/services/reservation.service';
 import { Reserva } from '@/types/reservation.types';
 import { CalendarIcon, ClockIcon, UsersIcon, XCircleIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@/components/Icons';
@@ -20,6 +21,7 @@ export default function MisReservasPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedReserva, setSelectedReserva] = useState<number | null>(null);
+  const userPicture = useUserPicture();
 
   useEffect(() => {
     cargarMisReservas();
@@ -141,6 +143,7 @@ export default function MisReservasPage() {
         <Header 
           title="Mis Reservas"
           description="Gestiona todas tus reservas deportivas"
+          userImage={userPicture}
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
