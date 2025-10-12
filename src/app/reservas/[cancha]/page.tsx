@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
+import Modal from '@/components/Modal';
 import { useUserPicture } from '@/hooks/useUserPicture';
 import { CalendarIcon, ClockIcon, UsersIcon, CheckCircleIcon } from '@/components/Icons';
 import { ReservationService } from '@/services/reservation.service';
@@ -30,6 +31,12 @@ export default function ReservaIndividualPage() {
   const [acceptConditions, setAcceptConditions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Estados para el modal de error/información
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalTitle, setErrorModalTitle] = useState('');
+  const [errorModalMessage, setErrorModalMessage] = useState('');
+  const [errorModalType, setErrorModalType] = useState<'error' | 'warning' | 'info' | 'success'>('error');
 
   // Información de las canchas
   const canchasInfo = {
@@ -178,8 +185,11 @@ export default function ReservaIndividualPage() {
 
         await ReservationService.crearReserva(reservaData);
         
-        // Mostrar mensaje de éxito
-        alert('¡Reserva creada exitosamente! Tu solicitud está pendiente de aprobación por el encargado.');
+        // Mostrar mensaje de éxito con modal
+        setErrorModalTitle('¡Reserva Exitosa!');
+        setErrorModalMessage('Tu reserva ha sido creada exitosamente. Está pendiente de aprobación por el encargado del polideportivo.');
+        setErrorModalType('success');
+        setShowErrorModal(true);
         
         // Resetear el formulario
         setShowModal(false);
@@ -189,9 +199,35 @@ export default function ReservaIndividualPage() {
         setIncludeMaterial(false);
         setAcceptConditions(false);
         
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'Error al crear la reserva');
-        console.error('Error creando reserva:', error);
+      } catch (error: any) {
+        console.error('Error completo creando reserva:', error);
+        
+        // Extraer el mensaje de error de diferentes fuentes posibles
+        let errorMessage = 'Error al crear la reserva';
+        
+        if (error?.message) {
+          errorMessage = error.message;
+        } else if (error?.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+        }
+        
+        console.log('Mensaje de error procesado:', errorMessage);
+        
+        // Verificar si es un error de cuenta suspendida
+        if (errorMessage.toLowerCase().includes('suspend') || errorMessage.toLowerCase().includes('suspendida')) {
+          setErrorModalTitle('Cuenta Suspendida');
+          setErrorModalMessage('Tu cuenta está suspendida. Por favor, contacta con el encargado del polideportivo para más información.');
+          setErrorModalType('warning');
+        } else {
+          setErrorModalTitle('Error al Crear Reserva');
+          setErrorModalMessage(errorMessage);
+          setErrorModalType('error');
+        }
+        
+        setShowErrorModal(true);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -478,6 +514,15 @@ export default function ReservaIndividualPage() {
           </div>
         </div>
       )}
+
+      {/* Modal de error/información/éxito */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={errorModalTitle}
+        message={errorModalMessage}
+        type={errorModalType}
+      />
     </div>
   );
 }
