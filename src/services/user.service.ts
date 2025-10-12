@@ -37,4 +37,24 @@ export class UserService {
             throw new Error(error.response?.data?.message || 'Error al obtener carreras');
         }
     }
+
+    // Obtener todos los usuarios
+    static async getUsuarios(): Promise<ApiResponse<any[]>> {
+        try {
+            const response = await axios.get('/api/users/usuarios');
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error al obtener usuarios');
+        }
+    }
+
+    // Cambiar estado de usuario
+    static async cambiarEstadoUsuario(userId: number, estado: 'activo' | 'suspendido'): Promise<ApiResponse> {
+        try {
+            const response = await axios.put(`/api/users/usuarios/${userId}/estado`, { estado });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error al cambiar estado del usuario');
+        }
+    }
 }

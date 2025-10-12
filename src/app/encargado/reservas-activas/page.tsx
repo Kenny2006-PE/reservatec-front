@@ -12,27 +12,22 @@ export default function ReservasActivasPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const datosMock: Reserva[] = [
-      {
-        id_reserva: 3,
-        id_usuario: 3,
-        id_area: 1,
-        id_horario: 2,
-        fecha: '2025-01-21',
-        participantes: 12,
-        material: true,
-        estado: 'aceptado',
-        usuario_nombre: 'Ana',
-        usuario_apellido: 'Rodriguez',
-        usuario_dni: '11223344',
-        usuario_codigo: 'EST003',
-        area_nombre: 'Fútbol 1',
-        horario_inicio: '09:00',
-        horario_fin: '10:00'
-      }
-    ];
-    setReservasActivas(datosMock);
+    cargarReservasActivas();
   }, []);
+
+  const cargarReservasActivas = async () => {
+    try {
+      setLoading(true);
+      const response = await ReservationService.getReservasActivas();
+      setReservasActivas(response.data || []);
+    } catch (error) {
+      console.error('Error al cargar reservas activas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
 
   const formatearFecha = (fecha: string) => {
     return new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', { 
@@ -80,8 +75,15 @@ export default function ReservasActivasPage() {
             </div>
 
             <div className="space-y-6">
-              {reservasActivas.length === 0 ? (
+              {loading ? (
                 <div className="bg-white/90 backdrop-blur-xl rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-200/50 p-12 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2 font-poppins">Cargando reservas activas...</h3>
+                  <p className="text-slate-600">Por favor espera un momento.</p>
+                </div>
+              ) : reservasActivas.length === 0 ? (
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-200/50 p-12 text-center">
+                  <CheckCircleIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-slate-900 mb-2 font-poppins">No hay reservas activas</h3>
                   <p className="text-slate-600">Las reservas aprobadas aparecerán aquí.</p>
                 </div>
