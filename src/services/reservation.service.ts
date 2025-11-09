@@ -6,7 +6,8 @@ import {
     ReservaResponse, 
     Horario, 
     HorarioDisponible,
-    Area
+    Area,
+    Sancion
 } from '@/types/reservation.types';
 
 export class ReservationService {
@@ -108,6 +109,60 @@ export class ReservationService {
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al cancelar reserva');
+        }
+    }
+
+    // ============================================================
+    // NUEVAS FUNCIONALIDADES: Control de Devolución de Materiales
+    // ============================================================
+
+    // Obtener reservas con material (para encargado)
+    static async getReservasConMaterial(filtro: 'todas' | 'pendientes' | 'devueltas' | 'no_devueltas' = 'todas'): Promise<ApiResponse<Reserva[]>> {
+        try {
+            const response = await axios.get(`/api/reservations/con-material?filtro=${filtro}`);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error al obtener reservas con material');
+        }
+    }
+
+    // Marcar material como devuelto o no devuelto
+    static async marcarDevuelto(reservaId: number, devuelto: boolean): Promise<ApiResponse> {
+        try {
+            const response = await axios.put(`/api/reservations/${reservaId}/marcar-devuelto`, { devuelto });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error al marcar devolución');
+        }
+    }
+
+    // Marcar material como NO devuelto y suspender usuario automáticamente
+    static async marcarNoDevueltoYSuspender(reservaId: number, descripcion?: string): Promise<ApiResponse> {
+        try {
+            const response = await axios.put(`/api/reservations/${reservaId}/marcar-no-devuelto-suspender`, { descripcion });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error al marcar como no devuelto');
+        }
+    }
+
+    // Obtener historial de sanciones de un usuario
+    static async getSancionesUsuario(userId: number): Promise<ApiResponse<Sancion[]>> {
+        try {
+            const response = await axios.get(`/api/reservations/usuario/${userId}/sanciones`);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error al obtener sanciones');
+        }
+    }
+
+    // Levantar suspensión de usuario
+    static async levantarSuspension(userId: number): Promise<ApiResponse> {
+        try {
+            const response = await axios.put(`/api/reservations/usuario/${userId}/levantar-suspension`);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error al levantar suspensión');
         }
     }
 }

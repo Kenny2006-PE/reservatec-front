@@ -51,12 +51,12 @@ export default function Sidebar({ currentPath, userType = 'estudiante' }: Sideba
           isActive: currentPath.includes('reservas-pendientes')
         },
         {
-          href: '/encargado/reportes',
-          label: 'Reportes Ge...',
-          description: 'Informes y estadísticas',
-          icon: FileTextIcon,
-          color: 'from-purple-500 to-purple-600',
-          isActive: currentPath.includes('reportes')
+          href: '/encargado/control-materiales',
+          label: 'Control Mat...',
+          description: 'Gestión de devolución de materiales',
+          icon: CheckCircleIcon,
+          color: 'from-orange-500 to-orange-600',
+          isActive: currentPath.includes('control-materiales')
         },
         {
           href: '/encargado/usuarios',
@@ -67,28 +67,36 @@ export default function Sidebar({ currentPath, userType = 'estudiante' }: Sideba
           isActive: currentPath.includes('usuarios')
         },
         {
-          href: '/encargado/formulario-informe',
-          label: 'Formulario d...',
-          description: 'Crear y gestionar informes',
-          icon: FileTextIcon,
-          color: 'from-blue-500 to-blue-600',
-          isActive: currentPath.includes('formulario-informe')
-        },
-        {
-          href: '/encargado/estadisticas',
-          label: 'Estadísticas',
-          description: 'Análisis y métricas del sistema',
-          icon: BarChartIcon,
-          color: 'from-red-500 to-red-600',
-          isActive: currentPath.includes('estadisticas')
-        },
-        {
           href: '/encargado/areas',
           label: 'Áreas',
           description: 'Gestión de espacios deportivos',
           icon: SettingsIcon,
           color: 'from-teal-500 to-teal-600',
           isActive: currentPath.includes('areas')
+        },
+        {
+          href: '/encargado/reportes',
+          label: 'Reportes',
+          description: 'Informes y estadísticas completas',
+          icon: FileTextIcon,
+          color: 'from-purple-500 to-purple-600',
+          isActive: currentPath.includes('reportes')
+        },
+        {
+          href: '/encargado/estadisticas',
+          label: 'Dashboard',
+          description: 'Vista rápida del sistema',
+          icon: BarChartIcon,
+          color: 'from-indigo-500 to-indigo-600',
+          isActive: currentPath.includes('estadisticas')
+        },
+        {
+          href: '/encargado/formulario-informe',
+          label: 'Informes',
+          description: 'Crear informes de conducta',
+          icon: FileTextIcon,
+          color: 'from-red-500 to-red-600',
+          isActive: currentPath.includes('formulario-informe')
         }
       ];
     }
