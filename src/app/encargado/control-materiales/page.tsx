@@ -105,7 +105,11 @@ export default function ControlMaterialesPage() {
   };
 
   const formatearFecha = (fecha: string) => {
-    return new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', { 
+    if (!fecha) return 'Fecha no disponible';
+    // Manejo de fecha en formato YYYY-MM-DD desde MySQL
+    const [year, month, day] = fecha.split('T')[0].split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    return date.toLocaleDateString('es-ES', { 
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 

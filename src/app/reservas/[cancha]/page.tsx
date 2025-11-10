@@ -77,25 +77,49 @@ export default function ReservaIndividualPage() {
 
   const canchaInfo = canchasInfo[cancha as keyof typeof canchasInfo] || canchasInfo.futbol1;
 
-  // Generar fechas desde hoy hacia adelante (próximos 7 días)
+  // Generar fechas desde hoy hacia adelante (solo días hábiles: Lunes a Viernes de la semana actual)
   const generateWeekDays = () => {
     const today = new Date();
     const weekDays = [];
     const dayNames = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
     const monthNames = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
 
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(today);
-      day.setDate(today.getDate() + i);
-      
-      weekDays.push({
-        name: dayNames[day.getDay()],
-        date: day.getDate(),
-        month: monthNames[day.getMonth()],
-        fullDate: day.toISOString().split('T')[0],
-        isToday: i === 0
-      });
+    // Si hoy es sábado o domingo, comenzar desde el lunes siguiente
+    let startDate = new Date(today);
+    const currentDayOfWeek = startDate.getDay();
+    
+    if (currentDayOfWeek === 0) { // Domingo
+      startDate.setDate(startDate.getDate() + 1); // Ir al lunes
+    } else if (currentDayOfWeek === 6) { // Sábado
+      startDate.setDate(startDate.getDate() + 2); // Ir al lunes
     }
+    
+    // Generar solo los días hábiles desde hoy hasta el viernes de la semana actual
+    let i = 0;
+    while (i < 7) {
+      const day = new Date(startDate);
+      day.setDate(startDate.getDate() + i);
+      const dayOfWeek = day.getDay();
+      
+      // Solo agregar días de lunes (1) a viernes (5)
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        weekDays.push({
+          name: dayNames[dayOfWeek],
+          date: day.getDate(),
+          month: monthNames[day.getMonth()],
+          fullDate: day.toISOString().split('T')[0],
+          isToday: day.toDateString() === today.toDateString()
+        });
+      }
+      
+      // Si llegamos al viernes, terminar
+      if (dayOfWeek === 5 && weekDays.length > 0) {
+        break;
+      }
+      
+      i++;
+    }
+    
     return weekDays;
   };
 
@@ -276,8 +300,7 @@ export default function ReservaIndividualPage() {
               <div className="p-6 sm:p-8 lg:p-10">
                 {/* Selector de día */}
                 <div className="mb-8">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6 font-poppins">Selecciona un día</h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
                     {weekDays.map((day) => (
                       <button
                         key={day.fullDate}

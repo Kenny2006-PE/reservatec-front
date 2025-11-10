@@ -7,15 +7,17 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
+import Modal from '@/components/Modal';
 import { useRouter } from 'next/navigation';
 import { LogOutIcon, ChevronRightIcon } from '@/components/Icons';
 import { AuthService } from '@/services/auth';
 import { useUserPicture } from '@/hooks/useUserPicture';
+import { AreaService } from '@/services/area.service';
 
 export default function ReservasPage() {
   const router = useRouter();
@@ -23,41 +25,96 @@ export default function ReservasPage() {
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const userPicture = useUserPicture();
+  const [areasHabilitadas, setAreasHabilitadas] = useState<{ [key: number]: boolean }>({});
+  const [loading, setLoading] = useState(true);
+  
+  // Estados para el modal
+  const [showModal, setShowModal] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState<'error' | 'warning' | 'info' | 'success'>('warning');
 
   const areas = {
     futbol1: {
       name: "Fútbol 1",
       description: "Cancha principal de fútbol",
-      color: "#10b981"
+      color: "#10b981",
+      id: 1
     },
     futbol2: {
       name: "Fútbol 2", 
       description: "Cancha secundaria de fútbol",
-      color: "#3b82f6"
+      color: "#3b82f6",
+      id: 2
     },
     fronton: {
       name: "Frontón",
       description: "Cancha de frontón/squash",
-      color: "#8b5cf6"
+      color: "#8b5cf6",
+      id: 3
     },
     voley: {
       name: "Futsal/Vóley/Básket",
       description: "Cancha multiuso deportiva",
-      color: "#f59e0b"
+      color: "#f59e0b",
+      id: 6
     },
     ludo: {
       name: "Ludoteca",
       description: "Área de juegos de mesa",
-      color: "#ec4899"
+      color: "#ec4899",
+      id: 5
     },
     pingpong: {
       name: "Ping Pong",
       description: "Mesa de ping pong",
-      color: "#14b8a6"
+      color: "#14b8a6",
+      id: 4
+    }
+  };
+
+  useEffect(() => {
+    cargarEstadoAreas();
+  }, []);
+
+  const cargarEstadoAreas = async () => {
+    try {
+      const response = await AreaService.getAreas();
+      const areasData = response.data || [];
+      
+      // Crear un mapa de id_area => habilitada
+      const estadoAreas: { [key: number]: boolean } = {};
+      areasData.forEach((area: any) => {
+        estadoAreas[area.id_area] = area.habilitada;
+      });
+      
+      setAreasHabilitadas(estadoAreas);
+    } catch (error) {
+      console.error('Error cargando estado de áreas:', error);
+      // Si hay error, asumimos que todas están habilitadas
+      const todasHabilitadas: { [key: number]: boolean } = {};
+      Object.values(areas).forEach(area => {
+        todasHabilitadas[area.id] = true;
+      });
+      setAreasHabilitadas(todasHabilitadas);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAreaClick = (areaId: string) => {
+    const area = areas[areaId as keyof typeof areas];
+    const estaHabilitada = areasHabilitadas[area.id];
+    
+    // Verificar si el área está habilitada
+    if (estaHabilitada === false) {
+      setModalTitle('Área No Disponible');
+      setModalMessage(`El área "${area.name}" no está disponible en este momento. Por favor, contacta al encargado del polideportivo para más información o selecciona otra área deportiva.`);
+      setModalType('warning');
+      setShowModal(true);
+      return;
+    }
+    
     router.push(`/reservas/${areaId}`);
   };
 
@@ -128,7 +185,7 @@ export default function ReservasPage() {
                     <rect x="0" y="0" width="900" height="800" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="3"/>
                     
                     {/* Área de Fútbol 2 (parte superior - horizontal) */}
-                    <g>
+                    <g opacity={areasHabilitadas[2] === false ? 0.4 : 1}>
                       <rect 
                         x="40" 
                         y="40" 
@@ -137,11 +194,18 @@ export default function ReservasPage() {
                         fill={selectedArea === 'futbol2' ? '#3b82f6' : hoveredArea === 'futbol2' ? '#60a5fa' : '#dbeafe'}
                         stroke="#3b82f6" 
                         strokeWidth="3"
-                        className="cursor-pointer transition-all duration-300 hover:fill-opacity-80"
+                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[2] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         onMouseEnter={() => setHoveredArea('futbol2')}
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('futbol2')}
                       />
+                      {areasHabilitadas[2] === false && (
+                        <>
+                          <text x="290" y="120" textAnchor="middle" className="fill-red-600 font-bold text-2xl font-poppins">
+                            ⚠ NO DISPONIBLE
+                          </text>
+                        </>
+                      )}
                       {/* Líneas de la cancha de fútbol 2 */}
                       <rect x="60" y="50" width="460" height="180" fill="none" stroke="#3b82f6" strokeWidth="2"/>
                       {/* Círculo central */}
@@ -192,7 +256,7 @@ export default function ReservasPage() {
                     </g>
 
                     {/* Área de Fútbol 1 (debajo de Fútbol 2) */}
-                    <g>
+                    <g opacity={areasHabilitadas[1] === false ? 0.4 : 1}>
                       <rect 
                         x="340" 
                         y="260" 
@@ -201,11 +265,16 @@ export default function ReservasPage() {
                         fill={selectedArea === 'futbol1' ? '#10b981' : hoveredArea === 'futbol1' ? '#34d399' : '#dcfce7'}
                         stroke="#10b981" 
                         strokeWidth="3"
-                        className="cursor-pointer transition-all duration-300 hover:fill-opacity-80"
+                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[1] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         onMouseEnter={() => setHoveredArea('futbol1')}
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('futbol1')}
                       />
+                      {areasHabilitadas[1] === false && (
+                        <text x="440" y="450" textAnchor="middle" className="fill-red-600 font-bold text-xl font-poppins" transform="rotate(-90 440 450)">
+                          ⚠ NO DISPONIBLE
+                        </text>
+                      )}
                       {/* Líneas de la cancha de fútbol 1 - vertical */}
                       <rect x="355" y="275" width="170" height="370" fill="none" stroke="#10b981" strokeWidth="2"/>
                       {/* Círculo central */}
@@ -373,6 +442,15 @@ export default function ReservasPage() {
           </div>
         </main>
       </div>
+
+      {/* Modal de advertencia */}
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+      />
     </div>
   );
 }

@@ -54,9 +54,7 @@ export default function GestionAreasPage() {
     { id: 'Martes', label: 'Martes' },
     { id: 'Miércoles', label: 'Miércoles' },
     { id: 'Jueves', label: 'Jueves' },
-    { id: 'Viernes', label: 'Viernes' },
-    { id: 'Sábado', label: 'Sábado' },
-    { id: 'Domingo', label: 'Domingo' }
+    { id: 'Viernes', label: 'Viernes' }
   ];
 
   useEffect(() => {
@@ -214,15 +212,6 @@ export default function GestionAreasPage() {
         />
         
         <main className="flex-1 p-4 md:p-8">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-              Gestión de Áreas
-            </h1>
-            <p className="text-slate-600">
-              Administra la disponibilidad de las áreas deportivas
-            </p>
-          </div>
 
           {/* Lista de áreas */}
           <div className="space-y-6">
@@ -301,7 +290,7 @@ export default function GestionAreasPage() {
                       <h4 className="text-sm font-semibold text-slate-700 mb-3">
                         Días deshabilitados:
                       </h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                         {diasSemana.map((dia) => {
                           const isSelected = currentDias.includes(dia.id);
                           return (
