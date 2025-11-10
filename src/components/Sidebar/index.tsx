@@ -97,6 +97,14 @@ export default function Sidebar({ currentPath, userType = 'estudiante' }: Sideba
           icon: FileTextIcon,
           color: 'from-red-500 to-red-600',
           isActive: currentPath.includes('formulario-informe')
+        },
+        {
+          href: '/encargado/fechas-prohibidas',
+          label: 'Fechas Prohib...',
+          description: 'Gestión de fechas no disponibles',
+          icon: XCircleIcon,
+          color: 'from-pink-500 to-pink-600',
+          isActive: currentPath.includes('fechas-prohibidas')
         }
       ];
     }

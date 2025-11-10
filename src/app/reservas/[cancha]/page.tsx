@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
@@ -15,6 +15,8 @@ import Modal from '@/components/Modal';
 import { useUserPicture } from '@/hooks/useUserPicture';
 import { CalendarIcon, ClockIcon, UsersIcon, CheckCircleIcon } from '@/components/Icons';
 import { ReservationService } from '@/services/reservation.service';
+import { obtenerTodasLasFechasIndividuales } from '@/services/fechasProhibidas';
+import type { FechaIndividual } from '@/types/fechasProhibidas';
 
 export default function ReservaIndividualPage() {
   const params = useParams();
@@ -74,8 +76,32 @@ export default function ReservaIndividualPage() {
 
   // Horarios disponibles (se cargan dinámicamente)
   const [timeSlots, setTimeSlots] = useState<{id: number, time: string, available: boolean}[]>([]);
+  
+  // Fechas prohibidas
+  const [fechasProhibidas, setFechasProhibidas] = useState<Map<string, string>>(new Map());
+  const [loadingFechas, setLoadingFechas] = useState(true);
 
   const canchaInfo = canchasInfo[cancha as keyof typeof canchasInfo] || canchasInfo.futbol1;
+
+  // Cargar fechas prohibidas al montar el componente
+  useEffect(() => {
+    const cargarFechasProhibidas = async () => {
+      try {
+        const fechas = await obtenerTodasLasFechasIndividuales();
+        const mapa = new Map<string, string>();
+        fechas.forEach(f => {
+          mapa.set(f.fecha, f.evento);
+        });
+        setFechasProhibidas(mapa);
+      } catch (error) {
+        console.error('Error cargando fechas prohibidas:', error);
+      } finally {
+        setLoadingFechas(false);
+      }
+    };
+
+    cargarFechasProhibidas();
+  }, []);
 
   // Generar fechas desde hoy hacia adelante (solo días hábiles: Lunes a Viernes de la semana actual)
   const generateWeekDays = () => {
@@ -301,25 +327,53 @@ export default function ReservaIndividualPage() {
                 {/* Selector de día */}
                 <div className="mb-8">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
-                    {weekDays.map((day) => (
-                      <button
-                        key={day.fullDate}
-                        onClick={() => setSelectedDate(day.fullDate)}
-                        className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                          selectedDate === day.fullDate
-                            ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
-                            : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
-                        }`}
-                      >
-                        <div className="text-center">
-                          <div className="text-xs font-semibold text-slate-500 mb-1">{day.name}</div>
-                          <div className={`text-2xl font-bold mb-1 ${
-                            selectedDate === day.fullDate ? 'text-blue-600' : 'text-slate-900'
-                          }`}>{day.date}</div>
-                          <div className="text-xs text-slate-400">{day.month}</div>
+                    {weekDays.map((day) => {
+                      const estaProhibido = fechasProhibidas.has(day.fullDate);
+                      const nombreEvento = fechasProhibidas.get(day.fullDate);
+                      
+                      return (
+                        <div key={day.fullDate} className="relative group">
+                          <button
+                            onClick={() => !estaProhibido && setSelectedDate(day.fullDate)}
+                            disabled={estaProhibido}
+                            className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
+                              estaProhibido
+                                ? 'border-red-200 bg-red-50 opacity-60 cursor-not-allowed'
+                                : selectedDate === day.fullDate
+                                  ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
+                                  : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
+                            }`}
+                          >
+                            <div className="text-center">
+                              <div className="text-xs font-semibold text-slate-500 mb-1">{day.name}</div>
+                              <div className={`text-2xl font-bold mb-1 ${
+                                estaProhibido
+                                  ? 'text-red-600'
+                                  : selectedDate === day.fullDate
+                                    ? 'text-blue-600'
+                                    : 'text-slate-900'
+                              }`}>{day.date}</div>
+                              <div className="text-xs text-slate-400">{day.month}</div>
+                              {estaProhibido && (
+                                <div className="mt-1">
+                                  <span className="text-xs font-semibold text-red-600">🚫 No disponible</span>
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                          
+                          {/* Tooltip con nombre del evento */}
+                          {estaProhibido && nombreEvento && (
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                              {nombreEvento}
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                                <div className="border-4 border-transparent border-t-gray-900"></div>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
