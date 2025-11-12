@@ -14,12 +14,10 @@ export interface Reporte {
   // Usuario que reporta
   reporta_nombre: string;
   reporta_apellido: string;
-  reporta_codigo: string;
   
   // Usuario reportado
   reportado_nombre: string;
   reportado_apellido: string;
-  reportado_codigo: string;
   reportado_dni: string;
   reportado_activo: boolean;
   

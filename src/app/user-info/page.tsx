@@ -73,7 +73,6 @@ export default function UserInfo() {
         nombre: formData.get('nombre') as string,
         apellido: formData.get('apellido') as string,
         dni: formData.get('dni') as string,
-        codigo: formData.get('codigo') as string,
         id_carrera: parseInt(formData.get('id_carrera') as string),
         condicion_med: hasCondicionMed ? (formData.get('condicion_med') as string || '') : '',
         correo: email
@@ -144,8 +143,6 @@ export default function UserInfo() {
                 )}
                 {!loading && (
                   <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
-                    {/* Información Personal y Académica */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
                     {/* Información Personal */}
                     <div className="space-y-6 sm:space-y-8">
                       <div className="flex items-center gap-3 mb-4 sm:mb-6">
@@ -155,10 +152,10 @@ export default function UserInfo() {
                         <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-poppins">Información Personal</h3>
                       </div>
                       
-                      <div className="space-y-4 sm:space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         <div>
                           <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-2 sm:mb-3 font-poppins tracking-wide">
-                            Nombre Completo
+                            Nombre
                           </label>
                           <input
                             type="text"
@@ -166,13 +163,14 @@ export default function UserInfo() {
                             required
                             disabled={formState.isLoading || isRegistered}
                             defaultValue={userData?.nombre || ''}
+                            placeholder="Ingrese su nombre"
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-2 sm:mb-3 font-poppins tracking-wide">
-                            Apellidos
+                            Apellido
                           </label>
                           <input
                             type="text"
@@ -180,6 +178,7 @@ export default function UserInfo() {
                             required
                             disabled={formState.isLoading || isRegistered}
                             defaultValue={userData?.apellido || ''}
+                            placeholder="Ingrese su apellido"
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
@@ -193,45 +192,21 @@ export default function UserInfo() {
                             name="dni"
                             required
                             maxLength={8}
-                            pattern="[0-9]*"
+                            pattern="[0-9]{8}"
                             disabled={formState.isLoading || isRegistered}
                             defaultValue={userData?.dni || ''}
-                            className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Información Académica */}
-                    <div className="space-y-6 sm:space-y-8">
-                      <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                        <div className="w-8 h-8 bg-emerald-100 rounded-xl flex items-center justify-center">
-                          <CalendarIcon className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-poppins">Información Académica</h3>
-                      </div>
-                      
-                      <div className="space-y-4 sm:space-y-6">
-                        <div>
-                          <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-2 sm:mb-3 font-poppins tracking-wide">
-                            Código Institucional
-                          </label>
-                          <input
-                            type="text"
-                            name="codigo"
-                            disabled={formState.isLoading || isRegistered}
-                            defaultValue={userData?.codigo || ''}
-                            placeholder="T12345678"
+                            placeholder="12345678"
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md font-medium text-slate-900 placeholder:text-slate-400 text-sm sm:text-base disabled:opacity-50"
                           />
                         </div>
 
-                        <div>
+                        <div className="md:col-span-2">
                           <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-2 sm:mb-3 font-poppins tracking-wide">
                             Carrera Profesional
                           </label>
                           <select
                             name="id_carrera"
+                            required
                             disabled={formState.isLoading || isRegistered}
                             defaultValue={userData?.id_carrera || ''}
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50 focus:bg-white shadow-sm hover:shadow-md appearance-none font-medium text-slate-900 text-sm sm:text-base disabled:opacity-50"
@@ -246,7 +221,6 @@ export default function UserInfo() {
                         </div>
                       </div>
                     </div>
-                  </div>
 
                   {/* Información Médica */}
                   <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl lg:rounded-3xl p-6 sm:p-8 border-2 border-blue-100/60 shadow-lg">

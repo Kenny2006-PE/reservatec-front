@@ -1,0 +1,7 @@
+<!-- Este es un placeholder SVG para el icono de la aplicación -->
+<!-- Reemplázalo con un PNG de 192x192px -->
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" fill="#1e293b"/>
+  <text x="96" y="110" font-family="Arial, sans-serif" font-size="64" fill="white" text-anchor="middle">RT</text>
+  <text x="96" y="150" font-family="Arial, sans-serif" font-size="24" fill="#60a5fa" text-anchor="middle">ReservaTec</text>
+</svg>

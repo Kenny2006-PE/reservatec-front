@@ -267,16 +267,12 @@ export default function ReportesGeneralesPage() {
                           <div>
                             <span className="font-semibold text-gray-700">Reportado por:</span>
                             <p className="text-gray-600">
-                              {reporte.reporta_nombre} {reporte.reporta_apellido} ({reporte.reporta_codigo})
+                              {reporte.reporta_nombre} {reporte.reporta_apellido}
                             </p>
                           </div>
                           <div>
                             <span className="font-semibold text-gray-700">DNI:</span>
                             <p className="text-gray-600">{reporte.reportado_dni}</p>
-                          </div>
-                          <div>
-                            <span className="font-semibold text-gray-700">Código:</span>
-                            <p className="text-gray-600">{reporte.reportado_codigo}</p>
                           </div>
                           <div>
                             <span className="font-semibold text-gray-700">Participantes:</span>

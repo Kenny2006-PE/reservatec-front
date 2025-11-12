@@ -246,7 +246,6 @@ export default function ControlMaterialesPage() {
                               <div className="space-y-2">
                                 <p className="text-slate-900"><span className="font-semibold">Nombre:</span> {reserva.usuario_nombre} {reserva.usuario_apellido}</p>
                                 <p className="text-slate-900"><span className="font-semibold">DNI:</span> {reserva.usuario_dni}</p>
-                                <p className="text-slate-900"><span className="font-semibold">Código:</span> {reserva.usuario_codigo}</p>
                                 <p className="text-slate-900">
                                   <span className="font-semibold">Estado:</span>{' '}
                                   <span className={`px-2 py-1 rounded text-xs font-bold ${reserva.usuario_activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

@@ -7,7 +7,6 @@ export interface UserRegisterData {
     nombre: string;
     apellido: string;
     dni: string;
-    codigo: string;
     id_carrera: number;
     condicion_med?: string;
     correo: string;

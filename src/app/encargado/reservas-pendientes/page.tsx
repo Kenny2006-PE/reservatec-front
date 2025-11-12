@@ -171,10 +171,6 @@ export default function ReservasPendientesPage() {
                               <p className="font-bold text-slate-900 font-poppins text-sm sm:text-base">{reserva.usuario_dni}</p>
                             </div>
                             <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200">
-                              <p className="text-xs sm:text-sm text-slate-500 mb-1 sm:mb-2">Código Institucional</p>
-                              <p className="font-bold text-slate-900 font-poppins text-sm sm:text-base">{reserva.usuario_codigo}</p>
-                            </div>
-                            <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200">
                               <p className="text-xs sm:text-sm text-slate-500 mb-1 sm:mb-2">Participantes</p>
                               <p className="font-bold text-slate-900 font-poppins text-sm sm:text-base">{reserva.participantes}</p>
                             </div>

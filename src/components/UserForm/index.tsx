@@ -20,7 +20,6 @@ const UserForm: React.FC<UserFormProps> = ({
         nombre: '',
         apellido: '',
         dni: '',
-        codigo: '',
         id_carrera: 0,
         condicion_med: '',
         correo: ''
@@ -96,23 +95,6 @@ const UserForm: React.FC<UserFormProps> = ({
                         minLength={8}
                         maxLength={8}
                         pattern="[0-9]*"
-                    />
-                </div>
-
-                {/* Código */}
-                <div>
-                    <label htmlFor="codigo" className="block text-sm font-medium text-gray-700">
-                        Código
-                    </label>
-                    <input
-                        type="text"
-                        id="codigo"
-                        name="codigo"
-                        value={formData.codigo}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required
-                        minLength={6}
                     />
                 </div>
 

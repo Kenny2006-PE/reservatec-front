@@ -9,7 +9,6 @@ interface FormularioInforme {
   tipoInforme: string;
   autores: string;
   dni: string;
-  codigoInstitucional: string;
   motivo: string;
   descripcion: string;
 }
@@ -19,7 +18,6 @@ export default function FormularioInformePage() {
     tipoInforme: '',
     autores: '',
     dni: '',
-    codigoInstitucional: '',
     motivo: '',
     descripcion: ''
   });
@@ -95,15 +93,11 @@ export default function FormularioInformePage() {
       doc.text(formulario.autores, margin, yPosition);
       yPosition += 10;
 
-      // DNI y Código (si están presentes)
-      if (formulario.dni || formulario.codigoInstitucional) {
-        const detalles = [];
-        if (formulario.dni) detalles.push(`DNI: ${formulario.dni}`);
-        if (formulario.codigoInstitucional) detalles.push(`Código: ${formulario.codigoInstitucional}`);
-        
+      // DNI (si está presente)
+      if (formulario.dni) {
         doc.setFontSize(10);
         doc.setFont('helvetica', 'italic');
-        doc.text(detalles.join(' | '), margin, yPosition);
+        doc.text(`DNI: ${formulario.dni}`, margin, yPosition);
         yPosition += 10;
       }
 
@@ -158,7 +152,6 @@ export default function FormularioInformePage() {
         tipoInforme: '',
         autores: '',
         dni: '',
-        codigoInstitucional: '',
         motivo: '',
         descripcion: ''
       });
@@ -237,21 +230,6 @@ export default function FormularioInformePage() {
                       value={formulario.dni}
                       onChange={handleInputChange}
                       placeholder="Documento de identidad"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-slate-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  {/* Código Institucional */}
-                  <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-2">
-                      Código Institucional
-                    </label>
-                    <input
-                      type="text"
-                      name="codigoInstitucional"
-                      value={formulario.codigoInstitucional}
-                      onChange={handleInputChange}
-                      placeholder="Código del estudiante"
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-slate-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>

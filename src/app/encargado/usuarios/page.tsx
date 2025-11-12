@@ -10,7 +10,6 @@ interface Usuario {
   nombre: string;
   apellido: string;
   dni: string;
-  codigo: string;
   email: string;
   carrera: string;
   estado: 'activo' | 'suspendido';
@@ -64,7 +63,7 @@ export default function UsuariosPage() {
     usuario.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
     usuario.apellido.toLowerCase().includes(searchQuery.toLowerCase()) ||
     usuario.dni.includes(searchQuery) ||
-    usuario.codigo.toLowerCase().includes(searchQuery.toLowerCase())
+    usuario.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const toggleExpandUser = (userId: number) => {
@@ -191,7 +190,6 @@ export default function UsuariosPage() {
                         <div className="text-sm text-gray-600">
                           <p className="mb-2"><strong>Email:</strong> {usuario.email}</p>
                           <p className="mb-2"><strong>DNI:</strong> {usuario.dni}</p>
-                          <p className="mb-2"><strong>Código:</strong> {usuario.codigo}</p>
                           <p><strong>Carrera:</strong> {usuario.carrera}</p>
                         </div>
                       </div>

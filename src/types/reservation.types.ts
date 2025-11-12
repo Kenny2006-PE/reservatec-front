@@ -26,7 +26,6 @@ export interface Reserva {
     usuario_nombre?: string;
     usuario_apellido?: string;
     usuario_dni?: string;
-    usuario_codigo?: string;
     usuario_correo?: string;
     usuario_activo?: boolean;
     // Datos del área
@@ -43,7 +42,6 @@ export interface Reserva {
     horario?: string;
     estudiante?: string;
     dni?: string;
-    codigoInstitucional?: string;
     materialDeportivo?: string;
 }
 
