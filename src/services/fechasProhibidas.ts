@@ -8,7 +8,7 @@ import type {
   EventoPreview
 } from '@/types/fechasProhibidas';
 
-const BASE_URL = '/api/reservations/fechas-prohibidas';
+const BASE_URL = '/reservations/fechas-prohibidas';
 
 /**
  * Subir archivo Excel para procesar fechas prohibidas

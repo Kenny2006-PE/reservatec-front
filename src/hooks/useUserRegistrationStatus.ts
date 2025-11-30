@@ -21,7 +21,7 @@ export const useUserRegistrationStatus = () => {
                 console.log('API URL:', process.env.NEXT_PUBLIC_BACKEND_API_URL);
                 console.log('Token:', localStorage.getItem('jwt'));
                 
-                const response = await axios.get(`/api/users/check-registration?email=${encodeURIComponent(email)}`);
+                const response = await axios.get(`/users/check-registration?email=${encodeURIComponent(email)}`);
                 console.log('Response:', response);
                 const { isRegistered, userData } = response.data;
                 

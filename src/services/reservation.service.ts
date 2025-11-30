@@ -14,7 +14,7 @@ export class ReservationService {
     // Obtener áreas disponibles
     static async getAreas(): Promise<ApiResponse<Area[]>> {
         try {
-            const response = await axios.get('/api/reservations/areas');
+            const response = await axios.get('/reservations/areas');
             return response.data;
         } catch (error: any) {
             console.error('Error obteniendo áreas:', error);
@@ -25,7 +25,7 @@ export class ReservationService {
     // Obtener horarios disponibles
     static async getHorarios(): Promise<ApiResponse<Horario[]>> {
         try {
-            const response = await axios.get('/api/reservations/horarios');
+            const response = await axios.get('/reservations/horarios');
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al obtener horarios');
@@ -35,7 +35,7 @@ export class ReservationService {
     // Obtener horarios disponibles para una fecha y área específica
     static async getHorariosDisponibles(areaId: number, fecha: string): Promise<ApiResponse<HorarioDisponible[]>> {
         try {
-            const response = await axios.get(`/api/reservations/horarios-disponibles?area_id=${areaId}&fecha=${fecha}`);
+            const response = await axios.get(`/reservations/horarios-disponibles?area_id=${areaId}&fecha=${fecha}`);
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al obtener horarios disponibles');
@@ -45,7 +45,7 @@ export class ReservationService {
     // Crear una nueva reserva
     static async crearReserva(reservaData: ReservaRequest): Promise<ReservaResponse> {
         try {
-            const response = await axios.post('/api/reservations/crear', reservaData);
+            const response = await axios.post('/reservations/crear', reservaData);
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al crear reserva');
@@ -55,7 +55,7 @@ export class ReservationService {
     // Obtener reservas pendientes (para encargado)
     static async getReservasPendientes(): Promise<ApiResponse<Reserva[]>> {
         try {
-            const response = await axios.get('/api/reservations/pendientes');
+            const response = await axios.get('/reservations/pendientes');
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al obtener reservas pendientes');
@@ -65,7 +65,7 @@ export class ReservationService {
     // Obtener reservas activas (para encargado)
     static async getReservasActivas(): Promise<ApiResponse<Reserva[]>> {
         try {
-            const response = await axios.get('/api/reservations/activas');
+            const response = await axios.get('/reservations/activas');
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al obtener reservas activas');
@@ -75,7 +75,7 @@ export class ReservationService {
     // Aceptar una reserva (encargado)
     static async aceptarReserva(reservaId: number): Promise<ApiResponse> {
         try {
-            const response = await axios.put(`/api/reservations/${reservaId}/aceptar`, {});
+            const response = await axios.put(`/reservations/${reservaId}/aceptar`, {});
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al aceptar reserva');
@@ -85,7 +85,7 @@ export class ReservationService {
     // Rechazar una reserva (encargado)
     static async rechazarReserva(reservaId: number, comentario: string): Promise<ApiResponse> {
         try {
-            const response = await axios.put(`/api/reservations/${reservaId}/rechazar`, { comentario });
+            const response = await axios.put(`/reservations/${reservaId}/rechazar`, { comentario });
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al rechazar reserva');
@@ -95,7 +95,7 @@ export class ReservationService {
     // Obtener reservas del usuario
     static async getMisReservas(): Promise<ApiResponse<Reserva[]>> {
         try {
-            const response = await axios.get('/api/reservations/mis-reservas');
+            const response = await axios.get('/reservations/mis-reservas');
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al obtener mis reservas');
@@ -105,7 +105,7 @@ export class ReservationService {
     // Cancelar una reserva propia
     static async cancelarReserva(reservaId: number): Promise<ApiResponse> {
         try {
-            const response = await axios.put(`/api/reservations/${reservaId}/cancelar`);
+            const response = await axios.put(`/reservations/${reservaId}/cancelar`);
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al cancelar reserva');
@@ -119,7 +119,7 @@ export class ReservationService {
     // Obtener reservas con material (para encargado)
     static async getReservasConMaterial(filtro: 'todas' | 'pendientes' | 'devueltas' | 'no_devueltas' = 'todas'): Promise<ApiResponse<Reserva[]>> {
         try {
-            const response = await axios.get(`/api/reservations/con-material?filtro=${filtro}`);
+            const response = await axios.get(`/reservations/con-material?filtro=${filtro}`);
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al obtener reservas con material');
@@ -129,7 +129,7 @@ export class ReservationService {
     // Marcar material como devuelto o no devuelto
     static async marcarDevuelto(reservaId: number, devuelto: boolean): Promise<ApiResponse> {
         try {
-            const response = await axios.put(`/api/reservations/${reservaId}/marcar-devuelto`, { devuelto });
+            const response = await axios.put(`/reservations/${reservaId}/marcar-devuelto`, { devuelto });
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al marcar devolución');
@@ -139,7 +139,7 @@ export class ReservationService {
     // Marcar material como NO devuelto y suspender usuario automáticamente
     static async marcarNoDevueltoYSuspender(reservaId: number, descripcion?: string): Promise<ApiResponse> {
         try {
-            const response = await axios.put(`/api/reservations/${reservaId}/marcar-no-devuelto-suspender`, { descripcion });
+            const response = await axios.put(`/reservations/${reservaId}/marcar-no-devuelto-suspender`, { descripcion });
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al marcar como no devuelto');
@@ -149,7 +149,7 @@ export class ReservationService {
     // Obtener historial de sanciones de un usuario
     static async getSancionesUsuario(userId: number): Promise<ApiResponse<Sancion[]>> {
         try {
-            const response = await axios.get(`/api/reservations/usuario/${userId}/sanciones`);
+            const response = await axios.get(`/reservations/usuario/${userId}/sanciones`);
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al obtener sanciones');
@@ -159,7 +159,7 @@ export class ReservationService {
     // Levantar suspensión de usuario
     static async levantarSuspension(userId: number): Promise<ApiResponse> {
         try {
-            const response = await axios.put(`/api/reservations/usuario/${userId}/levantar-suspension`);
+            const response = await axios.put(`/reservations/usuario/${userId}/levantar-suspension`);
             return response.data;
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error al levantar suspensión');

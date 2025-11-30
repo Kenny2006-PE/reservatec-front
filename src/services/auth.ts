@@ -10,7 +10,9 @@ export const AuthService = {
    * Inicia el proceso de login con Google
    */
   initiateGoogleLogin: () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/google`;
+    // Las rutas de autenticación están en /auth, no en /api
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    window.location.href = `${backendUrl}/auth/google`;
   },
 
   /**

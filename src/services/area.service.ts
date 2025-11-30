@@ -13,9 +13,9 @@ export interface AreaConfig {
 
 export class AreaService {
   // Obtener todas las áreas con su configuración
-  static async getAreas(): Promise<ApiResponse<AreaConfig[]>> {
+  static async getAreasConfig(): Promise<ApiResponse<AreaConfig[]>> {
     try {
-      const response = await axios.get('/api/areas/config');
+      const response = await axios.get('/areas/config');
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al obtener áreas');
@@ -23,9 +23,9 @@ export class AreaService {
   }
 
   // Actualizar configuración de un área
-  static async updateAreaConfig(areaId: number, config: Partial<AreaConfig>): Promise<ApiResponse<any>> {
+  static async updateAreaConfig(areaId: number, config: Partial<AreaConfig>): Promise<ApiResponse> {
     try {
-      const response = await axios.put(`/api/areas/config/${areaId}`, config);
+      const response = await axios.put(`/areas/config/${areaId}`, config);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al actualizar área');

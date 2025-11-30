@@ -6,11 +6,37 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SidebarEncargado from '@/components/Sidebar/SidebarEncargado';
+import { DashboardService, DashboardStats } from '@/services/dashboard.service';
 
 export default function EncargadoDashboard() {
   const [currentPath] = useState('dashboard');
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Cargar estadísticas al montar el componente
+  useEffect(() => {
+    loadStats();
+    // Refrescar cada 30 segundos
+    const interval = setInterval(loadStats, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      const response = await DashboardService.getStats();
+      setStats(response.data);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error al cargar estadísticas:', err);
+      setError(err.message || 'Error al cargar las estadísticas del servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -42,13 +68,38 @@ export default function EncargadoDashboard() {
 
         {/* Contenido */}
         <div className="p-6 lg:p-8">
+          {/* Mensaje de error */}
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 text-red-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-red-800">Error al cargar datos</h3>
+                  <p className="mt-1 text-sm text-red-700">{error}</p>
+                  <button 
+                    onClick={loadStats}
+                    className="mt-2 text-sm font-medium text-red-600 hover:text-red-500"
+                  >
+                    Intentar de nuevo
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Estadísticas rápidas */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Reservas Activas</p>
-                  <p className="text-3xl font-bold text-green-600 mt-2">24</p>
+                  {loading ? (
+                    <div className="h-9 w-16 bg-gray-200 animate-pulse rounded mt-2"></div>
+                  ) : (
+                    <p className="text-3xl font-bold text-green-600 mt-2">{stats?.reservasActivas || 0}</p>
+                  )}
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -62,7 +113,11 @@ export default function EncargadoDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Reservas Pendientes</p>
-                  <p className="text-3xl font-bold text-yellow-600 mt-2">8</p>
+                  {loading ? (
+                    <div className="h-9 w-12 bg-gray-200 animate-pulse rounded mt-2"></div>
+                  ) : (
+                    <p className="text-3xl font-bold text-yellow-600 mt-2">{stats?.reservasPendientes || 0}</p>
+                  )}
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -76,7 +131,11 @@ export default function EncargadoDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Usuarios</p>
-                  <p className="text-3xl font-bold text-blue-600 mt-2">156</p>
+                  {loading ? (
+                    <div className="h-9 w-20 bg-gray-200 animate-pulse rounded mt-2"></div>
+                  ) : (
+                    <p className="text-3xl font-bold text-blue-600 mt-2">{stats?.totalUsuarios || 0}</p>
+                  )}
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -90,7 +149,11 @@ export default function EncargadoDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Áreas Disponibles</p>
-                  <p className="text-3xl font-bold text-purple-600 mt-2">12</p>
+                  {loading ? (
+                    <div className="h-9 w-12 bg-gray-200 animate-pulse rounded mt-2"></div>
+                  ) : (
+                    <p className="text-3xl font-bold text-purple-600 mt-2">{stats?.areasDisponibles || 0}</p>
+                  )}
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -110,27 +173,52 @@ export default function EncargadoDashboard() {
                 <p className="text-gray-600 mt-1">Últimas reservas realizadas</p>
               </div>
               <div className="p-6">
-                <div className="space-y-4">
-                  {[1, 2, 3, 4].map((item) => (
-                    <div key={item} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                          {item}
+                {loading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="h-20 bg-gray-100 animate-pulse rounded-lg"></div>
+                    ))}
+                  </div>
+                ) : stats?.reservasRecientes && stats.reservasRecientes.length > 0 ? (
+                  <div className="space-y-4">
+                    {stats.reservasRecientes.map((reserva, index) => (
+                      <div key={reserva.id_reserva} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{reserva.area_nombre}</p>
+                            <p className="text-sm text-gray-600">
+                              Usuario: {reserva.usuario_nombre} {reserva.usuario_apellido}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-900">Cancha de Fútbol {item}</p>
-                          <p className="text-sm text-gray-600">Usuario: Estudiante {item}</p>
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-gray-900">
+                            {reserva.fecha_formato} {reserva.hora_inicio}
+                          </p>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            reserva.estado === 'aceptado' 
+                              ? 'bg-green-100 text-green-800' 
+                              : reserva.estado === 'pendiente'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {reserva.estado_texto}
+                          </span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">Hoy 15:00</p>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Activa
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-600">No hay reservas recientes</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -141,26 +229,48 @@ export default function EncargadoDashboard() {
                 <p className="text-gray-600 mt-1">Registro de actividades recientes</p>
               </div>
               <div className="p-6">
-                <div className="space-y-4">
-                  {[
-                    { action: 'Nueva reserva creada', time: 'Hace 5 min', type: 'create' },
-                    { action: 'Reserva cancelada', time: 'Hace 15 min', type: 'cancel' },
-                    { action: 'Usuario registrado', time: 'Hace 30 min', type: 'user' },
-                    { action: 'Reporte generado', time: 'Hace 1 hora', type: 'report' }
-                  ].map((activity, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${
-                        activity.type === 'create' ? 'bg-green-500' :
-                        activity.type === 'cancel' ? 'bg-red-500' :
-                        activity.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'
-                      }`}></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                        <p className="text-xs text-gray-600">{activity.time}</p>
+                {loading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse"></div>
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                          <div className="h-3 bg-gray-100 rounded animate-pulse w-1/4"></div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : stats?.actividadSistema && stats.actividadSistema.length > 0 ? (
+                  <div className="space-y-4">
+                    {stats.actividadSistema.map((activity, index) => {
+                      const getActivityColor = (accion: string) => {
+                        if (accion.includes('Nueva reserva') || accion.includes('aprobada')) return 'bg-green-500';
+                        if (accion.includes('cancelada') || accion.includes('Reserva cancelada')) return 'bg-red-500';
+                        if (accion.includes('Usuario registrado')) return 'bg-blue-500';
+                        return 'bg-purple-500';
+                      };
+                      
+                      return (
+                        <div key={index} className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full ${getActivityColor(activity.accion)}`}></div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">{activity.accion}</p>
+                            <p className="text-xs text-gray-600">{activity.usuario}</p>
+                            <p className="text-xs text-gray-500">{activity.tiempo_relativo}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-600">No hay actividad reciente</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

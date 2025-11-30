@@ -17,7 +17,12 @@ export default function SidebarEncargado({ currentPath }: SidebarEncargadoProps)
   };
 
   const handleLogout = () => {
-    // Lógica para cerrar sesión del encargado
+    // Eliminar cookies de autenticación
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    
+    // Redirigir a la página principal
     window.location.href = '/';
   };
 

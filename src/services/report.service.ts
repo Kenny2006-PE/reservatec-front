@@ -6,7 +6,7 @@ export class ReportService {
   // Crear un nuevo reporte (usuario reporta una reserva)
   static async createReport(data: CrearReporteDTO): Promise<ApiResponse<{ id_reporte: number }>> {
     try {
-      const response = await axios.post('/api/reports', data);
+      const response = await axios.post('/reports', data);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al crear reporte');
@@ -17,7 +17,7 @@ export class ReportService {
   static async getAllReports(filtro?: EstadoReporte | 'todas'): Promise<ApiResponse<Reporte[]>> {
     try {
       const params = filtro ? { filtro } : {};
-      const response = await axios.get('/api/reports', { params });
+      const response = await axios.get('/reports', { params });
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al obtener reportes');
@@ -27,7 +27,7 @@ export class ReportService {
   // Obtener reportes de un usuario específico
   static async getReportsByUser(userId: number): Promise<ApiResponse<Reporte[]>> {
     try {
-      const response = await axios.get(`/api/reports/usuario/${userId}`);
+      const response = await axios.get(`/reports/usuario/${userId}`);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al obtener reportes del usuario');
@@ -37,7 +37,7 @@ export class ReportService {
   // Sancionar usuario desde un reporte
   static async sancionarDesdeReporte(reporteId: number, data: SancionarReporteDTO): Promise<ApiResponse<null>> {
     try {
-      const response = await axios.put(`/api/reports/${reporteId}/sancionar`, data);
+      const response = await axios.put(`/reports/${reporteId}/sancionar`, data);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al sancionar usuario');
@@ -47,7 +47,7 @@ export class ReportService {
   // Rechazar un reporte
   static async rechazarReporte(reporteId: number, data: SancionarReporteDTO): Promise<ApiResponse<null>> {
     try {
-      const response = await axios.put(`/api/reports/${reporteId}/rechazar`, data);
+      const response = await axios.put(`/reports/${reporteId}/rechazar`, data);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al rechazar reporte');
@@ -57,7 +57,7 @@ export class ReportService {
   // Marcar como revisado
   static async marcarRevisado(reporteId: number, comentario?: string): Promise<ApiResponse<null>> {
     try {
-      const response = await axios.put(`/api/reports/${reporteId}/marcar-revisado`, { comentario });
+      const response = await axios.put(`/reports/${reporteId}/marcar-revisado`, { comentario });
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al marcar como revisado');
