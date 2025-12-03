@@ -12,12 +12,24 @@ export interface AreaConfig {
 }
 
 export class AreaService {
+  // Obtener todas las áreas (lista simple)
+  static async getAreas(): Promise<ApiResponse<{ id_area: number; nombre: string; habilitada: boolean }[]>> {
+    try {
+      const response = await axios.get('/reservations/areas');
+      return response.data;
+    } catch (error: any) {
+      console.error('Error al obtener áreas:', error);
+      throw new Error(error.response?.data?.message || 'Error al obtener áreas');
+    }
+  }
+
   // Obtener todas las áreas con su configuración
   static async getAreasConfig(): Promise<ApiResponse<AreaConfig[]>> {
     try {
       const response = await axios.get('/areas/config');
       return response.data;
     } catch (error: any) {
+      console.error('Error al obtener configuración de áreas:', error);
       throw new Error(error.response?.data?.message || 'Error al obtener áreas');
     }
   }
@@ -32,16 +44,16 @@ export class AreaService {
     }
   }
 
-  // Verificar si un área está disponible para una fecha y horario
-  static async checkAreaAvailability(areaId: number, fecha: string, horarioId: number): Promise<boolean> {
+  // Verificar si un área está disponible para una fecha
+  static async checkAvailability(areaId: number, fecha: string): Promise<ApiResponse<boolean>> {
     try {
-      const response = await axios.get(`/api/areas/check-availability`, {
-        params: { areaId, fecha, horarioId }
+      const response = await axios.get(`/areas/check-availability`, {
+        params: { area_id: areaId, fecha }
       });
-      return response.data.available;
+      return response.data;
     } catch (error: any) {
       console.error('Error verificando disponibilidad:', error);
-      return false;
+      throw new Error(error.response?.data?.message || 'Error al verificar disponibilidad');
     }
   }
 }

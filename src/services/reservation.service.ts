@@ -165,4 +165,17 @@ export class ReservationService {
             throw new Error(error.response?.data?.message || 'Error al levantar suspensión');
         }
     }
+
+    // ============================================================
+    // Obtener reservas por área y fecha
+    // ============================================================
+    static async getReservationsByAreaAndDate(areaId: number, fecha: string): Promise<any[]> {
+        try {
+            const response = await axios.get(`/reservations/area/${areaId}/fecha/${fecha}`);
+            return response.data.data || [];
+        } catch (error: any) {
+            console.error('Error obteniendo reservas por área y fecha:', error);
+            return [];
+        }
+    }
 }

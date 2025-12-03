@@ -66,7 +66,13 @@ export default function GestionAreasPage() {
     try {
       // Cargar áreas desde el backend
       const areasResponse = await AreaService.getAreas();
-      const areasData = areasResponse.data || [];
+      const areasData = (areasResponse.data || []).map(area => ({
+        ...area,
+        diasDeshabilitados: area.diasDeshabilitados || [],
+        horariosDeshabilitados: area.horariosDeshabilitados || [],
+        descripcion: area.descripcion || '',
+        stock: area.stock || 10
+      }));
       
       setAreas(areasData);
 
@@ -116,9 +122,9 @@ export default function GestionAreasPage() {
   const handleEditArea = (area: Area) => {
     setEditingArea(area.id_area);
     setTempHabilitada(area.habilitada);
-    setTempDias(area.diasDeshabilitados);
-    setTempHorarios(area.horariosDeshabilitados);
-    setTempStock(area.stock);
+    setTempDias(area.diasDeshabilitados || []);
+    setTempHorarios(area.horariosDeshabilitados || []);
+    setTempStock(area.stock || 10);
   };
 
   const handleCancelEdit = () => {
@@ -218,9 +224,9 @@ export default function GestionAreasPage() {
             {areas.map((area) => {
               const isEditing = editingArea === area.id_area;
               const currentHabilitada = isEditing ? tempHabilitada : area.habilitada;
-              const currentDias = isEditing ? tempDias : area.diasDeshabilitados;
-              const currentHorarios = isEditing ? tempHorarios : area.horariosDeshabilitados;
-              const currentStock = isEditing ? tempStock : area.stock;
+              const currentDias = isEditing ? tempDias : (area.diasDeshabilitados || []);
+              const currentHorarios = isEditing ? tempHorarios : (area.horariosDeshabilitados || []);
+              const currentStock = isEditing ? tempStock : (area.stock || 10);
 
               return (
                 <div

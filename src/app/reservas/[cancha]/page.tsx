@@ -81,6 +81,10 @@ export default function ReservaIndividualPage() {
   const [fechasProhibidas, setFechasProhibidas] = useState<Map<string, string>>(new Map());
   const [loadingFechas, setLoadingFechas] = useState(true);
 
+  // Reservas del día seleccionado
+  const [reservasDelDia, setReservasDelDia] = useState<any[]>([]);
+  const [loadingReservas, setLoadingReservas] = useState(false);
+
   const canchaInfo = canchasInfo[cancha as keyof typeof canchasInfo] || canchasInfo.futbol1;
 
   // Cargar fechas prohibidas al montar el componente
@@ -102,6 +106,109 @@ export default function ReservaIndividualPage() {
 
     cargarFechasProhibidas();
   }, []);
+
+  // Cargar reservas cuando cambia la fecha seleccionada
+  useEffect(() => {
+    const cargarReservasDelDia = async () => {
+      if (!selectedDate || !cancha) {
+        setReservasDelDia([]);
+        return;
+      }
+      
+      setLoadingReservas(true);
+      try {
+        // Obtener el ID del área desde el parámetro cancha
+        const areaMap: Record<string, number> = {
+          'futbol1': 1,
+          'futbol2': 2,
+          'fronton': 3,
+          'voley': 4,
+          'ludo': 5,
+          'pingpong': 6
+        };
+        
+        const areaId = areaMap[cancha as keyof typeof areaMap];
+        if (!areaId) {
+          console.warn('ID de área no encontrado para:', cancha);
+          setReservasDelDia([]);
+          return;
+        }
+
+        // Verificar que el método existe antes de llamarlo
+        if (typeof ReservationService.getReservationsByAreaAndDate !== 'function') {
+          console.error('El método getReservationsByAreaAndDate no está disponible');
+          setReservasDelDia([]);
+          return;
+        }
+
+        // Llamar al servicio para obtener reservas del día
+        const reservas = await ReservationService.getReservationsByAreaAndDate(areaId, selectedDate);
+        
+        // Validar que reservas sea un array
+        if (!Array.isArray(reservas)) {
+          console.warn('Las reservas no son un array:', reservas);
+          setReservasDelDia([]);
+          return;
+        }
+        
+        // Obtener la hora actual
+        const ahora = new Date();
+        const horaActual = ahora.getHours();
+        const minutoActual = ahora.getMinutes();
+        const fechaHoy = new Date().toISOString().split('T')[0];
+        
+        // Filtrar reservas: si es hoy, solo mostrar desde la hora actual en adelante
+        const reservasFiltradas = reservas.filter((reserva: any) => {
+          try {
+            // Validar que la reserva tenga horario
+            if (!reserva?.horario) return false;
+            
+            // Si no es el día de hoy, mostrar todas las reservas
+            if (selectedDate !== fechaHoy) {
+              return true;
+            }
+            
+            // Si es hoy, filtrar por hora
+            // Extraer hora de inicio del horario (formato "14:00-15:00")
+            const horaInicio = reserva.horario.split('-')[0]?.trim();
+            if (!horaInicio) return false;
+            
+            const [hora, minuto] = horaInicio.split(':').map(Number);
+            
+            // Validar que hora y minuto sean números válidos
+            if (isNaN(hora) || isNaN(minuto)) return false;
+            
+            // Solo mostrar si la hora de inicio es mayor o igual a la hora actual
+            if (hora > horaActual) return true;
+            if (hora === horaActual && minuto >= minutoActual) return true;
+            
+            return false;
+          } catch (err) {
+            console.error('Error filtrando reserva:', err, reserva);
+            return false;
+          }
+        });
+        
+        setReservasDelDia(reservasFiltradas);
+      } catch (error: any) {
+        console.error('Error cargando reservas del día:', error);
+        
+        // Mostrar error al usuario si es necesario
+        if (error?.message && !error.message.includes('not a function')) {
+          setErrorModalTitle('Error al Cargar Reservas');
+          setErrorModalMessage('No se pudieron cargar las reservas del día. Por favor, intenta nuevamente.');
+          setErrorModalType('error');
+          setShowErrorModal(true);
+        }
+        
+        setReservasDelDia([]);
+      } finally {
+        setLoadingReservas(false);
+      }
+    };
+
+    cargarReservasDelDia();
+  }, [selectedDate, cancha]);
 
   // Generar fechas desde hoy hacia adelante (solo días hábiles: Lunes a Viernes de la semana actual)
   const generateWeekDays = () => {
@@ -270,7 +377,27 @@ export default function ReservaIndividualPage() {
           setErrorModalTitle('Cuenta Suspendida');
           setErrorModalMessage('Tu cuenta está suspendida. Por favor, contacta con el encargado del polideportivo para más información.');
           setErrorModalType('warning');
-        } else {
+        }
+        // Verificar si es un error de día deshabilitado
+        else if (errorMessage.toLowerCase().includes('no está disponible los días') || errorMessage.toLowerCase().includes('días deshabilitados')) {
+          setErrorModalTitle('Día No Disponible');
+          setErrorModalMessage(errorMessage);
+          setErrorModalType('warning');
+        }
+        // Verificar si es un error de horario deshabilitado
+        else if (errorMessage.toLowerCase().includes('horario') && errorMessage.toLowerCase().includes('no está disponible')) {
+          setErrorModalTitle('Horario No Disponible');
+          setErrorModalMessage(errorMessage);
+          setErrorModalType('warning');
+        }
+        // Verificar si es un error de área deshabilitada
+        else if (errorMessage.toLowerCase().includes('área') && errorMessage.toLowerCase().includes('no está disponible')) {
+          setErrorModalTitle('Área No Disponible');
+          setErrorModalMessage(errorMessage);
+          setErrorModalType('warning');
+        }
+        // Error genérico
+        else {
           setErrorModalTitle('Error al Crear Reserva');
           setErrorModalMessage(errorMessage);
           setErrorModalType('error');
@@ -406,56 +533,79 @@ export default function ReservaIndividualPage() {
               </div>
 
               <div className="p-6 sm:p-8 lg:p-10">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {reservasActuales.map((reserva) => (
-                    <div
-                      key={reserva.id}
-                      className="p-6 rounded-2xl border-2 border-slate-200 shadow-lg transition-all duration-300 hover:shadow-xl"
-                      style={{ backgroundColor: reserva.color }}
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <h4 className="text-lg font-bold text-slate-900 font-poppins">{reserva.usuario}</h4>
-                        <button className="text-slate-600 hover:text-slate-800 transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="1"/>
-                            <circle cx="19" cy="12" r="1"/>
-                            <circle cx="5" cy="12" r="1"/>
-                          </svg>
-                        </button>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div className="text-sm text-slate-600">
-                          <span className="font-medium">{reserva.fecha}</span>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <div className="text-xs text-slate-500 mb-1">Hora</div>
-                            <div className="font-semibold text-slate-900">{reserva.hora}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-slate-500 mb-1">Participantes</div>
-                            <div className="font-semibold text-slate-900">{reserva.participantes}</div>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <div className="text-xs text-slate-500 mb-1">Material deportivo</div>
-                          <div className="font-semibold text-slate-900">{reserva.materialDeportivo}</div>
-                        </div>
-                      </div>
-
-                      {reserva.id === 1 && (
-                        <div className="mt-4 pt-4 border-t border-slate-300">
-                          <button className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                            Reportar
-                          </button>
-                        </div>
-                      )}
+                {loadingReservas ? (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <p className="text-slate-600 mt-2">Cargando reservas...</p>
+                  </div>
+                ) : reservasDelDia.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                      <ClockIcon className="w-8 h-8 text-blue-600" />
                     </div>
-                  ))}
-                </div>
+                    <p className="text-slate-600 font-medium">
+                      {selectedDate 
+                        ? 'No hay reservas programadas para esta fecha en el horario seleccionado'
+                        : 'Selecciona una fecha para ver las reservas del día'
+                      }
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {reservasDelDia.map((reserva) => (
+                      <div
+                        key={reserva.id_reserva}
+                        className="p-6 rounded-2xl border-2 border-slate-200 shadow-lg transition-all duration-300 hover:shadow-xl bg-white"
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <h4 className="text-lg font-bold text-slate-900 font-poppins">
+                            {reserva.nombre_usuario || 'Usuario'}
+                          </h4>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            reserva.estado === 'Confirmada' 
+                              ? 'bg-green-100 text-green-800' 
+                              : reserva.estado === 'Pendiente'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {reserva.estado}
+                          </span>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="text-sm text-slate-600">
+                            <span className="font-medium">
+                              {new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-ES', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                              })}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <div className="text-xs text-slate-500 mb-1">Hora</div>
+                              <div className="font-semibold text-slate-900">{reserva.horario}</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-slate-500 mb-1">Participantes</div>
+                              <div className="font-semibold text-slate-900">{reserva.num_participantes}</div>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <div className="text-xs text-slate-500 mb-1">Material deportivo</div>
+                            <div className="font-semibold text-slate-900">
+                              {reserva.material_deportivo ? 'Sí' : 'No'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
