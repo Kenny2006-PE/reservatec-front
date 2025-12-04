@@ -58,7 +58,7 @@ export function useNotifications() {
 
       // Obtener la clave pública VAPID del servidor
       console.log('⏳ Obteniendo clave VAPID...');
-      const { data } = await axios.get('/api/notifications/vapid-public-key');
+      const { data } = await axios.get('/notifications/vapid-public-key');
       const vapidPublicKey = data.publicKey;
       console.log('✅ Clave VAPID obtenida');
 
@@ -78,7 +78,7 @@ export function useNotifications() {
 
       // Enviar suscripción al servidor
       console.log('⏳ Guardando suscripción en el servidor...');
-      await axios.post('/api/notifications/subscribe', {
+      await axios.post('/notifications/subscribe', {
         subscription: pushSubscription.toJSON(),
         deviceInfo
       });
@@ -118,7 +118,7 @@ export function useNotifications() {
       await subscription.unsubscribe();
 
       // Notificar al servidor
-      await axios.post('/api/notifications/unsubscribe', {
+      await axios.post('/notifications/unsubscribe', {
         endpoint: subscription.endpoint
       });
 
@@ -138,7 +138,7 @@ export function useNotifications() {
   // Enviar notificación de prueba
   const sendTestNotification = useCallback(async () => {
     try {
-      await axios.post('/api/notifications/test');
+      await axios.post('/notifications/test');
       console.log('✅ Notificación de prueba enviada');
       return true;
     } catch (error) {

@@ -30,7 +30,7 @@ export default function NotificationSettings() {
 
   const loadPreferences = async () => {
     try {
-      const { data } = await axios.get('/api/notifications/preferences');
+      const { data } = await axios.get('/notifications/preferences');
       setPreferences(data.preferences);
     } catch (error) {
       console.error('Error al cargar preferencias:', error);
@@ -47,7 +47,7 @@ export default function NotificationSettings() {
 
     setIsSaving(true);
     try {
-      await axios.put('/api/notifications/preferences', { [key]: newPreferences[key] });
+      await axios.put('/notifications/preferences', { [key]: newPreferences[key] });
     } catch (error) {
       console.error('Error al actualizar preferencias:', error);
       // Revertir el cambio
