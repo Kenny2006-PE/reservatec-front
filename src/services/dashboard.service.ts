@@ -36,6 +36,22 @@ export interface DashboardStats {
     mes: string;
     cantidad: number;
   }[];
+  
+  // Métricas adicionales
+  totalReservas?: number;
+  variacionReservas?: number;
+  usuariosActivos?: number;
+  variacionUsuarios?: number;
+  areaMasPopular?: {
+    nombre: string;
+    porcentaje: number;
+  };
+  reportes?: number;
+  variacionReportes?: number;
+  reservasSemanales?: {
+    dia: string;
+    cantidad: number;
+  }[];
 }
 
 export class DashboardService {

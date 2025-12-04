@@ -28,7 +28,9 @@ export default function EncargadoDashboard() {
     try {
       setLoading(true);
       const response = await DashboardService.getStats();
-      setStats(response.data);
+      if (response.data) {
+        setStats(response.data);
+      }
       setError(null);
     } catch (err: any) {
       console.error('Error al cargar estadísticas:', err);

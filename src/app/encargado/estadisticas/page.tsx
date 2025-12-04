@@ -216,10 +216,10 @@ export default function EstadisticasPage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-slate-900 mb-1">
-                {stats.totalReservas.toLocaleString()}
+                {(stats.totalReservas || 0).toLocaleString()}
               </div>
-              <div className={`text-sm font-medium ${stats.variacionReservas >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {stats.variacionReservas >= 0 ? '+' : ''}{stats.variacionReservas}% vs mes anterior
+              <div className={`text-sm font-medium ${(stats.variacionReservas || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {(stats.variacionReservas || 0) >= 0 ? '+' : ''}{stats.variacionReservas || 0}% vs mes anterior
               </div>
             </div>
 
@@ -234,10 +234,10 @@ export default function EstadisticasPage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-slate-900 mb-1">
-                {stats.usuariosActivos}
+                {stats.usuariosActivos || 0}
               </div>
-              <div className={`text-sm font-medium ${stats.variacionUsuarios >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {stats.variacionUsuarios >= 0 ? '+' : ''}{stats.variacionUsuarios}% vs mes anterior
+              <div className={`text-sm font-medium ${(stats.variacionUsuarios || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {(stats.variacionUsuarios || 0) >= 0 ? '+' : ''}{stats.variacionUsuarios || 0}% vs mes anterior
               </div>
             </div>
 
@@ -252,10 +252,10 @@ export default function EstadisticasPage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-slate-900 mb-1">
-                {stats.areaMasPopular.nombre}
+                {stats.areaMasPopular?.nombre || 'N/A'}
               </div>
               <div className="text-sm font-medium text-gray-600">
-                {stats.areaMasPopular.porcentaje}% del total
+                {stats.areaMasPopular?.porcentaje || 0}% del total
               </div>
             </div>
 
@@ -270,10 +270,10 @@ export default function EstadisticasPage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-slate-900 mb-1">
-                {stats.reportes}
+                {stats.reportes || 0}
               </div>
-              <div className={`text-sm font-medium ${stats.variacionReportes >= 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {stats.variacionReportes >= 0 ? '+' : ''}{stats.variacionReportes}% vs mes anterior
+              <div className={`text-sm font-medium ${(stats.variacionReportes || 0) >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {(stats.variacionReportes || 0) >= 0 ? '+' : ''}{stats.variacionReportes || 0}% vs mes anterior
               </div>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function EstadisticasPage() {
               <h3 className="text-lg font-bold text-slate-900 mb-2">Reservas Semanales</h3>
               <p className="text-sm text-gray-600 mb-6">Número de reservas por día de la semana</p>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={stats.reservasSemanales}>
+                <BarChart data={stats.reservasSemanales || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis 
                     dataKey="dia" 

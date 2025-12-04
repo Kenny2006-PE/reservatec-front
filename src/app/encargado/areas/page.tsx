@@ -64,8 +64,8 @@ export default function GestionAreasPage() {
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      // Cargar áreas desde el backend
-      const areasResponse = await AreaService.getAreas();
+      // Cargar áreas con configuración completa desde el backend
+      const areasResponse = await AreaService.getAreasConfig();
       const areasData = (areasResponse.data || []).map(area => ({
         ...area,
         diasDeshabilitados: area.diasDeshabilitados || [],
