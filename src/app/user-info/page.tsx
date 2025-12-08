@@ -7,27 +7,29 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { SaveIcon, InfoIcon, UserIcon, CalendarIcon } from "@/components/Icons";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useUserPicture } from "@/hooks/useUserPicture";
+import { useUserName } from "@/hooks/useUserName";
 import { useUserForm } from "@/hooks/useUserForm";
 import { useUserRegistrationStatus } from "@/hooks/useUserRegistrationStatus";
 import { getUserEmail } from "@/utils/auth";
 
 export default function UserInfo() {
+  console.log('[UserInfo] COMPONENTE RENDERIZADO');
+  
   const router = useRouter();
   const userPicture = useUserPicture();
-  const {
-    formState,
-    carreras,
-    loadCarreras,
-    submitForm
-  } = useUserForm();
+  const userName = useUserName();
+  const userFormHook = useUserForm();
+  const registrationStatus = useUserRegistrationStatus();
   
-  const { isRegistered, userData, loading } = useUserRegistrationStatus();
+  // Desestructurar solo lo necesario con valores estables
+  const { formState, carreras, loadCarreras, submitForm } = userFormHook;
+  const { isRegistered, userData, loading } = registrationStatus;
 
   const [hasCondicionMed, setHasCondicionMed] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -35,12 +37,19 @@ export default function UserInfo() {
   const [formDataToSubmit, setFormDataToSubmit] = useState<any>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // Cargar carreras solo una vez
   useEffect(() => {
+    console.log('[UserInfo] useEffect loadCarreras ejecutado');
     loadCarreras();
-    if (isRegistered && userData) {
+  }, [loadCarreras]);
+
+  // Actualizar condicion_med solo cuando cambia el valor específico
+  useEffect(() => {
+    console.log('[UserInfo] useEffect condicion_med ejecutado:', { isRegistered, condicion_med: userData?.condicion_med });
+    if (isRegistered && userData?.condicion_med !== undefined) {
       setHasCondicionMed(!!userData.condicion_med);
     }
-  }, [isRegistered, userData]);
+  }, [isRegistered, userData?.condicion_med]);
 
   // Efecto para el temporizador del botón de confirmar
   useEffect(() => {
@@ -111,6 +120,7 @@ export default function UserInfo() {
           title="Mi Información Personal"
           description="Gestiona y actualiza tu perfil personal de forma segura"
           userImage={userPicture}
+          userName={userName}
         />
 
         {/* Contenido del formulario */}

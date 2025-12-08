@@ -3,8 +3,6 @@
  * @description Maneja la lógica de autenticación con Google y gestión de tokens
  */
 
-import axios from '@/lib/axios';
-
 export const AuthService = {
   /**
    * Inicia el proceso de login con Google
@@ -28,10 +26,25 @@ export const AuthService = {
    */
   logout: async () => {
     try {
-      await axios.post('/auth/logout');
+      // La ruta de logout está en /auth, no en /api
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      await fetch(`${backendUrl}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      // Limpiar cookies del lado del cliente
+      document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'userPicture=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'userData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
       window.location.href = '/';
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
+      // Limpiar cookies aunque falle el request
+      document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'userPicture=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'userData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       window.location.href = '/';
     }
   },

@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { useUserPicture } from '@/hooks/useUserPicture';
+import { useUserName } from '@/hooks/useUserName';
 import { ReservationService } from '@/services/reservation.service';
 import { Reserva } from '@/types/reservation.types';
 import { CalendarIcon, ClockIcon, UsersIcon, XCircleIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@/components/Icons';
@@ -22,6 +23,7 @@ export default function MisReservasPage() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedReserva, setSelectedReserva] = useState<number | null>(null);
   const userPicture = useUserPicture();
+  const userName = useUserName();
 
   useEffect(() => {
     cargarMisReservas();
@@ -127,7 +129,7 @@ export default function MisReservasPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col lg:flex-row font-inter">
         <Sidebar currentPath="mis-reservas" userType="estudiante" />
         <div className="flex-1 flex flex-col">
-          <Header title="Mis Reservas" description="Gestiona tus reservas deportivas" />
+          <Header title="Mis Reservas" description="Gestiona tus reservas deportivas" userName={userName} />
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -148,6 +150,7 @@ export default function MisReservasPage() {
           title="Mis Reservas"
           description="Gestiona todas tus reservas deportivas"
           userImage={userPicture}
+          userName={userName}
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">

@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { useUserPicture } from '@/hooks/useUserPicture';
+import { useUserName } from '@/hooks/useUserName';
 import { DashboardService, DashboardStats } from '@/services/dashboard.service';
 import {
   BarChart,

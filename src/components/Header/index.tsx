@@ -1,12 +1,18 @@
 'use client';
 
+import { memo } from 'react';
+
 interface HeaderProps {
   title: string;
   description: string;
   userImage?: string;
+  userName?: string;
+  userType?: 'estudiante' | 'encargado';
 }
 
-export default function Header({ title, description, userImage }: HeaderProps) {
+const Header = memo(function Header({ title, description, userImage, userName, userType = 'estudiante' }: HeaderProps) {
+  const userRoleLabel = userType === 'encargado' ? 'Encargado' : 'Estudiante Activo';
+  
   return (
     <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-200/60 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -16,8 +22,8 @@ export default function Header({ title, description, userImage }: HeaderProps) {
         </div>
         <div className="flex items-center gap-3 sm:gap-6">
           <div className="text-right hidden sm:block">
-            <p className="text-sm sm:text-base font-semibold text-slate-900 font-poppins">Usuario Demo</p>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium">Estudiante Activo</p>
+            <p className="text-sm sm:text-base font-semibold text-slate-900 font-poppins">{userName || 'Usuario'}</p>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">{userRoleLabel}</p>
           </div>
           {userImage ? (
             <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl overflow-hidden shadow-lg">
@@ -36,4 +42,6 @@ export default function Header({ title, description, userImage }: HeaderProps) {
       </div>
     </header>
   );
-}
+});
+
+export default Header;

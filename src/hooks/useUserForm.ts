@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { UserRegisterData, UserFormState, Carrera } from '@/types/user.types';
 import { UserService } from '@/services/user.service';
 
@@ -10,19 +10,28 @@ export const useUserForm = (initialUserId?: number) => {
     });
 
     const [carreras, setCarreras] = useState<Carrera[]>([]);
+    const carrerasLoadedRef = useRef(false);
 
-    const loadCarreras = async () => {
+    console.log('[useUserForm] HOOK LLAMADO');
+
+    const loadCarreras = useCallback(async () => {
+        console.log('[useUserForm] loadCarreras ejecutado, carrerasLoadedRef:', carrerasLoadedRef.current);
+        if (carrerasLoadedRef.current) return;
+        // SIEMPRE marcar como loaded, incluso si falla, para evitar bucle infinito
+        carrerasLoadedRef.current = true;
         try {
             const response = await UserService.getCarreras();
             if (response.success && response.data) {
                 setCarreras(response.data);
             }
         } catch (error: any) {
-            console.error('Error loading carreras:', error);
+            console.error('[useUserForm] Error loading carreras:', error);
+            // NO resetear carrerasLoadedRef para evitar bucle
+            setCarreras([]); // Dejar vacío en caso de error
         }
-    };
+    }, []);
 
-    const loadUserData = async (userId: number) => {
+    const loadUserData = useCallback(async (userId: number) => {
         try {
             setFormState(prev => ({ ...prev, isLoading: true, error: null }));
             const response = await UserService.getUserById(userId);
@@ -37,9 +46,9 @@ export const useUserForm = (initialUserId?: number) => {
         } finally {
             setFormState(prev => ({ ...prev, isLoading: false }));
         }
-    };
+    }, []);
 
-    const submitForm = async (data: UserRegisterData) => {
+    const submitForm = useCallback(async (data: UserRegisterData) => {
         try {
             setFormState({ isLoading: true, error: null, isSuccess: false });
             
@@ -63,13 +72,14 @@ export const useUserForm = (initialUserId?: number) => {
             });
             throw error;
         }
-    };
+    }, [initialUserId]);
 
-    return {
+    // Memoizar el objeto de retorno completo para evitar re-renders innecesarios
+    return useMemo(() => ({
         formState,
         carreras,
         loadCarreras,
         loadUserData,
         submitForm
-    };
+    }), [formState, carreras, loadCarreras, loadUserData, submitForm]);
 };

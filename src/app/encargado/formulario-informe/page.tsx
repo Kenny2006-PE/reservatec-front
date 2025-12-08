@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import Header from '@/components/Header';
+import { useState } from "react";
+import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
+import { useUserName } from "@/hooks/useUserName";
+import { useUserPicture } from "@/hooks/useUserPicture";
 import jsPDF from 'jspdf';
 
 interface FormularioInforme {

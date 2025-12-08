@@ -4,9 +4,11 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import NotificationSettings from "@/components/NotificationSettings";
 import { useUserPicture } from "@/hooks/useUserPicture";
+import { useUserName } from "@/hooks/useUserName";
 
 export default function NotificationsPage() {
   const userPicture = useUserPicture();
+  const userName = useUserName();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col lg:flex-row font-inter">
@@ -17,6 +19,7 @@ export default function NotificationsPage() {
           title="Notificaciones"
           description="Configura cómo quieres recibir notificaciones"
           userImage={userPicture}
+          userName={userName}
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">

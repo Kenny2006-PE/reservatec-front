@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { LogOutIcon, ChevronRightIcon } from '@/components/Icons';
+import { AuthService } from '@/services/auth';
 
 interface SidebarEncargadoProps {
   currentPath: string;
@@ -14,16 +15,6 @@ export default function SidebarEncargado({ currentPath }: SidebarEncargadoProps)
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
-  };
-
-  const handleLogout = () => {
-    // Eliminar cookies de autenticación
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    
-    // Redirigir a la página principal
-    window.location.href = '/';
   };
 
   return (
@@ -123,9 +114,9 @@ export default function SidebarEncargado({ currentPath }: SidebarEncargadoProps)
           </Link>
 
           {/* Reportes Generales */}
-          <Link href="/encargado/reportes-generales" 
+          <Link href="/encargado/reportes" 
             className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl ${
-              currentPath === 'reportes-generales'
+              currentPath === 'reportes'
                 ? 'bg-gradient-to-r from-slate-700/70 to-slate-600/60 border border-slate-600/50 shadow-xl backdrop-blur-sm'
                 : 'hover:bg-slate-700/60 transition-all duration-300 border border-transparent hover:border-slate-600/40 hover:shadow-lg'
             }`}>
@@ -242,7 +233,7 @@ export default function SidebarEncargado({ currentPath }: SidebarEncargadoProps)
       {/* Cerrar sesión */}
       <div className="px-4 sm:px-6 py-4 sm:py-6 lg:py-8 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-700/30 mt-auto">
         <button 
-          onClick={handleLogout}
+          onClick={() => AuthService.logout()}
           className={`group flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3 sm:gap-4 lg:gap-5'} px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 rounded-xl lg:rounded-2xl hover:bg-red-500/10 transition-all duration-300 w-full text-left border border-transparent hover:border-red-500/30 hover:shadow-lg`}
         >
           <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-slate-700/80 rounded-lg lg:rounded-xl flex items-center justify-center group-hover:bg-red-500/20 transition-all duration-300">

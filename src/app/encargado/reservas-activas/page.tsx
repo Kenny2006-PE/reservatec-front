@@ -4,10 +4,14 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { ReservationService } from '@/services/reservation.service';
+import { useUserName } from '@/hooks/useUserName';
+import { useUserPicture } from '@/hooks/useUserPicture';
 import { Reserva } from '@/types/reservation.types';
 import { CheckCircleIcon, CalendarIcon, ClockIcon, UsersIcon } from '@/components/Icons';
 
 export default function ReservasActivasPage() {
+  const userName = useUserName();
+  const userPicture = useUserPicture();
   const [reservasActivas, setReservasActivas] = useState<Reserva[]>([]);
   const [loading, setLoading] = useState(false);
 

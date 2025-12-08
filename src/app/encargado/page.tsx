@@ -32,9 +32,10 @@ export default function EncargadoDashboard() {
         setStats(response.data);
       }
       setError(null);
-    } catch (err: any) {
-      console.error('Error al cargar estadísticas:', err);
-      setError(err.message || 'Error al cargar las estadísticas del servidor');
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error('Error al cargar estadísticas:', error);
+      setError(error.message || 'Error al cargar las estadísticas del servidor');
     } finally {
       setLoading(false);
     }

@@ -17,6 +17,7 @@ const UserForm: React.FC<UserFormProps> = ({
     error
 }) => {
     const [formData, setFormData] = useState<UserRegisterData>({
+        id_usuario: 0,
         nombre: '',
         apellido: '',
         dni: '',

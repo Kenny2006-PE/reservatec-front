@@ -45,6 +45,34 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Ocultar scrollbar en filtros horizontales */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Responsividad mejorada para textos */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+  }
+}
+
 /* Animación de fade in */
 @keyframes fadeIn {
   from {

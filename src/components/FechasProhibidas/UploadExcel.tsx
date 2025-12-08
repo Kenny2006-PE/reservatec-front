@@ -122,7 +122,7 @@ export default function UploadExcel({ onUploadSuccess }: UploadExcelProps) {
       {/* Área de drop */}
       <div
         className={`
-          border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer
+          border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
           ${isDragging 
             ? 'border-blue-500 bg-blue-50' 
             : 'border-gray-300 hover:border-gray-400'
@@ -146,7 +146,7 @@ export default function UploadExcel({ onUploadSuccess }: UploadExcelProps) {
         {!archivo ? (
           <>
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-10 w-10 text-gray-400"
               stroke="currentColor"
               fill="none"
               viewBox="0 0 48 48"
@@ -159,10 +159,10 @@ export default function UploadExcel({ onUploadSuccess }: UploadExcelProps) {
                 strokeLinejoin="round"
               />
             </svg>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-1.5 text-sm text-gray-600">
               <span className="font-semibold">Haz clic para seleccionar</span> o arrastra tu archivo aquí
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-0.5">
               Solo archivos Excel (.xlsx, .xls) hasta 5MB
             </p>
           </>

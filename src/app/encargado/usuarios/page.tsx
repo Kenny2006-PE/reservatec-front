@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { UserService } from '@/services/user.service';
+import { useUserName } from '@/hooks/useUserName';
+import { useUserPicture } from '@/hooks/useUserPicture';
 
 interface Usuario {
   id_usuario: number;
@@ -17,6 +19,8 @@ interface Usuario {
 }
 
 export default function UsuariosPage() {
+  const userName = useUserName();
+  const userPicture = useUserPicture();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,6 +82,9 @@ export default function UsuariosPage() {
         <Header 
           title="Gestión de Usuarios"
           description="Gestiona la información de todos los usuarios registrados"
+          userName={userName}
+          userImage={userPicture}
+          userType="encargado"
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">

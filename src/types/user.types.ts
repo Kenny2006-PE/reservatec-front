@@ -4,6 +4,7 @@ export interface Carrera {
 }
 
 export interface UserRegisterData {
+    id_usuario: number;
     nombre: string;
     apellido: string;
     dni: string;

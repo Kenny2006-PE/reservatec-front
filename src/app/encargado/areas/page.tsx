@@ -11,6 +11,7 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Modal from '@/components/Modal';
 import { useUserPicture } from '@/hooks/useUserPicture';
+import { useUserName } from '@/hooks/useUserName';
 import { AreaService, AreaConfig } from '@/services/area.service';
 import { ReservationService } from '@/services/reservation.service';
 
@@ -32,6 +33,7 @@ interface Horario {
 
 export default function GestionAreasPage() {
   const userPicture = useUserPicture();
+  const userName = useUserName();
   const [areas, setAreas] = useState<Area[]>([]);
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [loading, setLoading] = useState(true);

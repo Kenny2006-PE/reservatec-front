@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { LogOutIcon, ChevronRightIcon } from '@/components/Icons';
 import { AuthService } from '@/services/auth';
 import { useUserPicture } from '@/hooks/useUserPicture';
+import { useUserName } from '@/hooks/useUserName';
 import { AreaService } from '@/services/area.service';
 
 export default function ReservasPage() {
@@ -25,6 +26,7 @@ export default function ReservasPage() {
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const userPicture = useUserPicture();
+  const userName = useUserName();
   const [areasHabilitadas, setAreasHabilitadas] = useState<{ [key: number]: boolean }>({});
   const [loading, setLoading] = useState(true);
   
@@ -74,7 +76,12 @@ export default function ReservasPage() {
   };
 
   useEffect(() => {
-    cargarEstadoAreas();
+    // Cargar con un pequeño delay para no bloquear la renderización inicial
+    const timer = setTimeout(() => {
+      cargarEstadoAreas();
+    }, 0);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const cargarEstadoAreas = async () => {
@@ -132,6 +139,7 @@ export default function ReservasPage() {
           title="Reservar Espacios Deportivos"
           description="Selecciona el área deportiva donde deseas realizar tu reserva"
           userImage={userPicture}
+          userName={userName}
         />
 
         {/* Contenido del mapa */}

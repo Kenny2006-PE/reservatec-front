@@ -10,6 +10,8 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { ReservationService } from '@/services/reservation.service';
+import { useUserName } from '@/hooks/useUserName';
+import { useUserPicture } from '@/hooks/useUserPicture';
 import { Reserva } from '@/types/reservation.types';
 
 // Modal personalizado para este componente

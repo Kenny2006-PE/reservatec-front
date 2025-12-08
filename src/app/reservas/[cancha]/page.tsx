@@ -13,8 +13,11 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Modal from '@/components/Modal';
 import { useUserPicture } from '@/hooks/useUserPicture';
+import { useUserName } from '@/hooks/useUserName';
+import { useUserRegistrationStatus } from '@/hooks/useUserRegistrationStatus';
 import { CalendarIcon, ClockIcon, UsersIcon, CheckCircleIcon } from '@/components/Icons';
 import { ReservationService } from '@/services/reservation.service';
+import { ReportService } from '@/services/report.service';
 import { obtenerTodasLasFechasIndividuales } from '@/services/fechasProhibidas';
 import type { FechaIndividual } from '@/types/fechasProhibidas';
 
@@ -22,6 +25,8 @@ export default function ReservaIndividualPage() {
   const params = useParams();
   const router = useRouter();
   const userPicture = useUserPicture();
+  const userName = useUserName();
+  const { userData } = useUserRegistrationStatus();
   const cancha = params.cancha as string;
 
   // Estados
@@ -39,6 +44,16 @@ export default function ReservaIndividualPage() {
   const [errorModalTitle, setErrorModalTitle] = useState('');
   const [errorModalMessage, setErrorModalMessage] = useState('');
   const [errorModalType, setErrorModalType] = useState<'error' | 'warning' | 'info' | 'success'>('error');
+
+  // Estados para reservas del día
+  const [reservasDelDia, setReservasDelDia] = useState<any[]>([]);
+  const [loadingReservas, setLoadingReservas] = useState(false);
+
+  // Estados para modal de reporte
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reservaAReportar, setReservaAReportar] = useState<any>(null);
+  const [motivoReporte, setMotivoReporte] = useState('');
+  const [descripcionReporte, setDescripcionReporte] = useState('');
 
   // Información de las canchas
   const canchasInfo = {
@@ -80,10 +95,6 @@ export default function ReservaIndividualPage() {
   // Fechas prohibidas
   const [fechasProhibidas, setFechasProhibidas] = useState<Map<string, string>>(new Map());
   const [loadingFechas, setLoadingFechas] = useState(true);
-
-  // Reservas del día seleccionado
-  const [reservasDelDia, setReservasDelDia] = useState<any[]>([]);
-  const [loadingReservas, setLoadingReservas] = useState(false);
 
   const canchaInfo = canchasInfo[cancha as keyof typeof canchasInfo] || canchasInfo.futbol1;
 
@@ -218,7 +229,7 @@ export default function ReservaIndividualPage() {
     const monthNames = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
 
     // Si hoy es sábado o domingo, comenzar desde el lunes siguiente
-    let startDate = new Date(today);
+    const startDate = new Date(today);
     const currentDayOfWeek = startDate.getDay();
     
     if (currentDayOfWeek === 0) { // Domingo
@@ -262,11 +273,36 @@ export default function ReservaIndividualPage() {
   const cargarHorariosDisponibles = async (fecha: string, areaId: number) => {
     try {
       const response = await ReservationService.getHorariosDisponibles(areaId, fecha);
-      const horariosFormateados = (response.data || []).map((horario: any) => ({
-        id: horario.id_horario,
-        time: `${horario.hora_inicio.slice(0, 5)}-${horario.hora_fin.slice(0, 5)}`,
-        available: horario.disponible
-      }));
+      
+      // Obtener la fecha y hora actuales
+      const ahora = new Date();
+      const horaActual = ahora.getHours();
+      const minutoActual = ahora.getMinutes();
+      const fechaHoy = ahora.toISOString().split('T')[0];
+      const esHoy = fecha === fechaHoy;
+      
+      const horariosFormateados = (response.data || []).map((horario: any) => {
+        let disponible = horario.disponible;
+        
+        // Si es hoy, verificar que el horario no haya pasado
+        if (esHoy && disponible) {
+          // Extraer la hora de inicio del horario
+          const horaInicio = horario.hora_inicio.slice(0, 5); // "14:00"
+          const [hora, minuto] = horaInicio.split(':').map(Number);
+          
+          // Marcar como no disponible si el horario ya pasó o está en curso
+          if (hora < horaActual || (hora === horaActual && minuto <= minutoActual)) {
+            disponible = false;
+          }
+        }
+        
+        return {
+          id: horario.id_horario,
+          time: `${horario.hora_inicio.slice(0, 5)}-${horario.hora_fin.slice(0, 5)}`,
+          available: disponible
+        };
+      });
+      
       setTimeSlots(horariosFormateados);
     } catch (error) {
       console.error('Error cargando horarios:', error);
@@ -429,6 +465,7 @@ export default function ReservaIndividualPage() {
           title={canchaInfo.name}
           description={canchaInfo.description}
           userImage={userPicture}
+          userName={userName}
         />
 
         {/* Contenido del formulario de reserva */}
@@ -552,58 +589,108 @@ export default function ReservaIndividualPage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {reservasDelDia.map((reserva) => (
-                      <div
-                        key={reserva.id_reserva}
-                        className="p-6 rounded-2xl border-2 border-slate-200 shadow-lg transition-all duration-300 hover:shadow-xl bg-white"
-                      >
-                        <div className="flex justify-between items-start mb-4">
-                          <h4 className="text-lg font-bold text-slate-900 font-poppins">
-                            {reserva.nombre_usuario || 'Usuario'}
-                          </h4>
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                            reserva.estado === 'Confirmada' 
-                              ? 'bg-green-100 text-green-800' 
-                              : reserva.estado === 'Pendiente'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {reserva.estado}
-                          </span>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div className="text-sm text-slate-600">
-                            <span className="font-medium">
-                              {new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-ES', { 
-                                weekday: 'long', 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                              })}
+                    {reservasDelDia.map((reserva) => {
+                      // Determinar si es la reserva del usuario actual (comparar por nombre)
+                      const esReservaPropia = reserva.nombre_usuario?.toLowerCase().includes(userName.toLowerCase()) || 
+                                              userName.toLowerCase().includes(reserva.nombre_usuario?.toLowerCase() || '');
+                      
+                      return (
+                        <div
+                          key={reserva.id_reserva}
+                          className={`p-6 rounded-2xl border-2 shadow-lg transition-all duration-300 hover:shadow-xl ${
+                            esReservaPropia 
+                              ? 'bg-blue-50 border-blue-300' 
+                              : 'bg-white border-slate-200'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-lg font-bold text-slate-900 font-poppins">
+                                {esReservaPropia ? 'Tu reserva' : (reserva.nombre_usuario || 'Usuario')}
+                              </h4>
+                              {esReservaPropia && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                  Propia
+                                </span>
+                              )}
+                            </div>
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                              reserva.estado === 'Confirmada' 
+                                ? 'bg-green-100 text-green-800' 
+                                : reserva.estado === 'Pendiente'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {reserva.estado}
                             </span>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            <div className="text-sm text-slate-600">
+                              <span className="font-medium">
+                                {new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-ES', { 
+                                  weekday: 'long', 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
+                              </span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <div className="text-xs text-slate-500 mb-1">Hora</div>
+                                <div className="font-semibold text-slate-900 flex items-center gap-1">
+                                  <ClockIcon className="w-4 h-4" />
+                                  {reserva.horario}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-slate-500 mb-1">Participantes</div>
+                                <div className="font-semibold text-slate-900 flex items-center gap-1">
+                                  <UsersIcon className="w-4 h-4" />
+                                  {reserva.num_participantes}
+                                </div>
+                              </div>
+                            </div>
+                            
                             <div>
-                              <div className="text-xs text-slate-500 mb-1">Hora</div>
-                              <div className="font-semibold text-slate-900">{reserva.horario}</div>
+                              <div className="text-xs text-slate-500 mb-1">Material deportivo</div>
+                              <div className="font-semibold text-slate-900 flex items-center gap-1">
+                                {reserva.material_deportivo ? (
+                                  <>
+                                    <CheckCircleIcon className="w-4 h-4 text-green-600" />
+                                    <span className="text-green-600">Sí</span>
+                                  </>
+                                ) : (
+                                  <span className="text-gray-500">No</span>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <div className="text-xs text-slate-500 mb-1">Participantes</div>
-                              <div className="font-semibold text-slate-900">{reserva.num_participantes}</div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <div className="text-xs text-slate-500 mb-1">Material deportivo</div>
-                            <div className="font-semibold text-slate-900">
-                              {reserva.material_deportivo ? 'Sí' : 'No'}
-                            </div>
+                            
+                            {/* Botón de reportar solo para reservas de otros usuarios */}
+                            {!esReservaPropia && (
+                              <div className="pt-3 border-t border-gray-200">
+                                <button
+                                  onClick={() => {
+                                    console.log('🔴 Click en reportar - Reserva:', reserva);
+                                    console.log('🔴 userData:', userData);
+                                    setReservaAReportar(reserva);
+                                    setShowReportModal(true);
+                                  }}
+                                  className="w-full px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                  </svg>
+                                  Reportar esta reserva
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -736,6 +823,200 @@ export default function ReservaIndividualPage() {
                 }`}
               >
                 Confirmar reserva
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de reporte */}
+      {showReportModal && reservaAReportar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <h3 className="text-xl font-bold text-slate-900">Reportar reserva</h3>
+              <button
+                onClick={() => {
+                  setShowReportModal(false);
+                  setReservaAReportar(null);
+                  setMotivoReporte('');
+                  setDescripcionReporte('');
+                }}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              {/* Información de la reserva */}
+              <div className="bg-slate-50 rounded-lg p-4 space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="font-semibold text-slate-700">Usuario:</span>
+                  <span className="text-slate-900">{reservaAReportar.nombre_usuario}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="font-semibold text-slate-700">Fecha:</span>
+                  <span className="text-slate-900">{reservaAReportar.fecha}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-semibold text-slate-700">Horario:</span>
+                  <span className="text-slate-900">{reservaAReportar.horario}</span>
+                </div>
+              </div>
+
+              {/* Motivo del reporte */}
+              <div>
+                <label htmlFor="motivo-reporte" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Motivo del reporte <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="motivo-reporte"
+                  value={motivoReporte}
+                  onChange={(e) => setMotivoReporte(e.target.value)}
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all text-slate-900 bg-white"
+                  required
+                >
+                  <option value="" className="text-slate-400">Selecciona un motivo</option>
+                  <option value="no_asistio" className="text-slate-900">No asistió a la reserva</option>
+                  <option value="comportamiento_inadecuado" className="text-slate-900">Comportamiento inadecuado</option>
+                  <option value="dano_material" className="text-slate-900">Daño al material deportivo</option>
+                  <option value="dano_instalaciones" className="text-slate-900">Daño a las instalaciones</option>
+                  <option value="uso_indebido" className="text-slate-900">Uso indebido del área</option>
+                  <option value="incumplimiento_normas" className="text-slate-900">Incumplimiento de normas</option>
+                  <option value="otro" className="text-slate-900">Otro</option>
+                </select>
+              </div>
+
+              {/* Descripción */}
+              <div>
+                <label htmlFor="descripcion-reporte" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Descripción detallada
+                </label>
+                <textarea
+                  id="descripcion-reporte"
+                  value={descripcionReporte}
+                  onChange={(e) => setDescripcionReporte(e.target.value)}
+                  maxLength={500}
+                  rows={4}
+                  placeholder="Describe lo sucedido con más detalle..."
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all resize-none text-slate-900 bg-white placeholder:text-slate-400"
+                />
+                <div className="text-right text-xs text-slate-500 mt-1">
+                  {descripcionReporte.length}/500 caracteres
+                </div>
+              </div>
+
+              {/* Advertencia */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-3">
+                <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p className="text-xs text-amber-800">
+                  Los reportes falsos o malintencionados pueden resultar en sanciones. Asegúrate de reportar solo situaciones reales.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer con botones */}
+            <div className="sticky bottom-0 bg-white border-t border-slate-200 px-6 py-4 flex gap-3 rounded-b-2xl">
+              <button
+                onClick={() => {
+                  setShowReportModal(false);
+                  setReservaAReportar(null);
+                  setMotivoReporte('');
+                  setDescripcionReporte('');
+                }}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  if (!motivoReporte) {
+                    setErrorModalTitle('Campo requerido');
+                    setErrorModalMessage('Debes seleccionar un motivo para el reporte.');
+                    setErrorModalType('error');
+                    setShowErrorModal(true);
+                    return;
+                  }
+
+                  try {
+                    // Validar que tengamos los datos necesarios
+                    if (!userData?.id_usuario) {
+                      setErrorModalTitle('Error');
+                      setErrorModalMessage('No se pudo identificar tu usuario. Por favor, recarga la página e intenta de nuevo.');
+                      setErrorModalType('error');
+                      setShowErrorModal(true);
+                      return;
+                    }
+
+                    if (!reservaAReportar.id_reserva) {
+                      setErrorModalTitle('Error');
+                      setErrorModalMessage('No se pudo identificar la reserva a reportar.');
+                      setErrorModalType('error');
+                      setShowErrorModal(true);
+                      return;
+                    }
+
+                    // Enviar reporte al backend
+                    console.log('📝 Enviando reporte:', {
+                      id_reserva: reservaAReportar.id_reserva,
+                      id_usuario_reporta: userData.id_usuario,
+                      razon: motivoReporte,
+                      descripcion: descripcionReporte
+                    });
+
+                    const response = await ReportService.createReport({
+                      id_reserva: reservaAReportar.id_reserva,
+                      id_usuario_reporta: userData.id_usuario,
+                      razon: motivoReporte,
+                      descripcion: descripcionReporte || ''
+                    });
+
+                    console.log('✅ Reporte enviado exitosamente:', response);
+
+                    // Cerrar modal y limpiar estados
+                    setShowReportModal(false);
+                    setReservaAReportar(null);
+                    setMotivoReporte('');
+                    setDescripcionReporte('');
+
+                    // Mostrar mensaje de éxito
+                    setErrorModalTitle('Reporte enviado');
+                    setErrorModalMessage('Tu reporte ha sido enviado correctamente. El equipo de encargados lo revisará pronto.');
+                    setErrorModalType('success');
+                    setShowErrorModal(true);
+                  } catch (error: any) {
+                    console.error('❌ Error enviando reporte:', error);
+                    // Mostrar mensaje de error
+                    setErrorModalTitle('Error');
+                    setErrorModalMessage(error.message || 'No se pudo enviar el reporte. Inténtalo de nuevo.');
+                    setErrorModalType('error');
+                    setShowErrorModal(true);
+                  }
+                }}
+                disabled={!motivoReporte}
+                className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-colors ${
+                  motivoReporte
+                    ? 'bg-slate-900 text-white hover:bg-slate-800'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Enviar reporte
               </button>
             </div>
           </div>

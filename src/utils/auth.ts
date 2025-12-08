@@ -40,3 +40,58 @@ export const getUserEmail = (): string => {
     }
     return '';
 };
+
+// Función para obtener el nombre del usuario desde las cookies
+export const getUserName = (): string => {
+    if (typeof window !== 'undefined') {
+        const cookies = document.cookie.split(';');
+        const userDataCookie = cookies.find(cookie => cookie.trim().startsWith('userData='));
+        
+        if (userDataCookie) {
+            try {
+                const cookieValue = userDataCookie.split('=')[1];
+                const decodedValue = decodeURIComponent(cookieValue);
+                const userData = JSON.parse(decodedValue);
+                return userData.nombre || '';
+            } catch (error) {
+                console.error('Error obteniendo nombre del usuario:', error);
+            }
+        }
+    }
+    return '';
+};
+
+// Función para obtener el apellido del usuario desde las cookies
+export const getUserLastName = (): string => {
+    if (typeof window !== 'undefined') {
+        const cookies = document.cookie.split(';');
+        const userDataCookie = cookies.find(cookie => cookie.trim().startsWith('userData='));
+        
+        if (userDataCookie) {
+            try {
+                const cookieValue = userDataCookie.split('=')[1];
+                const decodedValue = decodeURIComponent(cookieValue);
+                const userData = JSON.parse(decodedValue);
+                return userData.apellido || '';
+            } catch (error) {
+                console.error('Error obteniendo apellido del usuario:', error);
+            }
+        }
+    }
+    return '';
+};
+
+// Función para obtener el nombre completo del usuario
+export const getUserFullName = (): string => {
+    const nombre = getUserName();
+    const apellido = getUserLastName();
+    
+    if (nombre && apellido) {
+        return `${nombre} ${apellido}`;
+    } else if (nombre) {
+        return nombre;
+    } else if (apellido) {
+        return apellido;
+    }
+    return 'Usuario';
+};
