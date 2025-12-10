@@ -10,6 +10,15 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
+  // Obtener el JWT de las cookies y agregarlo al header Authorization
+  if (typeof window !== 'undefined') {
+    const cookies = document.cookie.split(';');
+    const jwtCookie = cookies.find(cookie => cookie.trim().startsWith('jwt='));
+    if (jwtCookie) {
+      const token = jwtCookie.split('=')[1];
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
   return config;
 });
 
