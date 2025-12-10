@@ -59,7 +59,7 @@ export default function ReservasPage() {
       name: "Futsal/Vóley/Básket",
       description: "Cancha multiuso deportiva",
       color: "#f59e0b",
-      id: 4
+      id: 6
     },
     ludo: {
       name: "Ludoteca",
@@ -71,7 +71,7 @@ export default function ReservasPage() {
       name: "Ping Pong",
       description: "Mesa de ping pong",
       color: "#14b8a6",
-      id: 6
+      id: 4
     }
   };
 
@@ -322,7 +322,7 @@ export default function ReservasPage() {
                     </g>
 
                     {/* Área de Futsal/Vóley/Básket (derecha, debajo del frontón) */}
-                    <g opacity={areasHabilitadas[4] === false ? 0.4 : 1}>
+                    <g opacity={areasHabilitadas[6] === false ? 0.4 : 1}>
                       <rect 
                         x="670" 
                         y="180" 
@@ -331,12 +331,12 @@ export default function ReservasPage() {
                         fill={selectedArea === 'voley' ? '#f59e0b' : hoveredArea === 'voley' ? '#fbbf24' : '#fef3c7'}
                         stroke="#f59e0b" 
                         strokeWidth="3"
-                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[4] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[6] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         onMouseEnter={() => setHoveredArea('voley')}
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('voley')}
                       />
-                      {areasHabilitadas[4] === false && (
+                      {areasHabilitadas[6] === false && (
                         <text x="765" y="320" textAnchor="middle" className="fill-red-600 font-bold text-xl font-poppins">
                           ⚠ NO DISPONIBLE
                         </text>
@@ -396,7 +396,7 @@ export default function ReservasPage() {
                     </g>
 
                     {/* Área de Ping Pong (esquina inferior derecha) */}
-                    <g opacity={areasHabilitadas[6] === false ? 0.4 : 1}>
+                    <g opacity={areasHabilitadas[4] === false ? 0.4 : 1}>
                       <rect 
                         x="600" 
                         y="660" 
@@ -405,12 +405,12 @@ export default function ReservasPage() {
                         fill={selectedArea === 'pingpong' ? '#14b8a6' : hoveredArea === 'pingpong' ? '#2dd4bf' : '#ccfbf1'}
                         stroke="#14b8a6" 
                         strokeWidth="3"
-                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[6] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[4] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         onMouseEnter={() => setHoveredArea('pingpong')}
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('pingpong')}
                       />
-                      {areasHabilitadas[6] === false && (
+                      {areasHabilitadas[4] === false && (
                         <text x="665" y="710" textAnchor="middle" className="fill-red-600 font-bold text-sm font-poppins">
                           ⚠ NO DISPONIBLE
                         </text>
