@@ -135,7 +135,7 @@ export default function ReportesGeneralesPage() {
     switch (estado) {
       case 'pendiente': return 'bg-yellow-100 text-yellow-800';
       case 'revisado': return 'bg-blue-100 text-blue-800';
-      case 'sancionado': return 'bg-red-100 text-red-800';
+      case 'resuelto': return 'bg-red-100 text-red-800';
       case 'rechazado': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -178,7 +178,7 @@ export default function ReportesGeneralesPage() {
             {[
               { valor: 'pendiente', label: 'Pendientes', icon: ClockIcon, count: reportes.filter(r => r.estado === 'pendiente').length },
               { valor: 'revisado', label: 'Revisados', icon: EyeIcon, count: reportes.filter(r => r.estado === 'revisado').length },
-              { valor: 'sancionado', label: 'Sancionados', icon: BanIcon, count: reportes.filter(r => r.estado === 'sancionado').length },
+              { valor: 'resuelto', label: 'Resueltos', icon: BanIcon, count: reportes.filter(r => r.estado === 'resuelto').length },
               { valor: 'rechazado', label: 'Rechazados', icon: XCircleIcon, count: reportes.filter(r => r.estado === 'rechazado').length },
               { valor: 'todas', label: 'Todos', icon: FileTextIcon, count: reportes.length }
             ].map((item) => {

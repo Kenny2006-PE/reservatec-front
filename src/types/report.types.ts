@@ -1,6 +1,6 @@
 // Tipos para el sistema de reportes/denuncias
 
-export type EstadoReporte = 'pendiente' | 'revisado' | 'sancionado' | 'rechazado';
+export type EstadoReporte = 'pendiente' | 'revisado' | 'resuelto' | 'rechazado';
 
 export interface Reporte {
   id_reporte: number;
