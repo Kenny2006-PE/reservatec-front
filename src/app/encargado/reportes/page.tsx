@@ -212,74 +212,96 @@ export default function ReportesGeneralesPage() {
               {reportes.map((reporte) => (
                 <div
                   key={reporte.id_reporte}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                 >
                   {/* Encabezado del reporte */}
-                  <div className="p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row items-start gap-4 mb-4">
-                      {/* Avatar con iniciales */}
-                      <div className="flex flex-row sm:flex-col items-center gap-2 sm:gap-2 w-full sm:w-auto">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                  <div className="p-4 sm:p-5">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      {/* Avatar del usuario reportado */}
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-md">
                           <span className="text-white font-bold text-lg sm:text-xl">
                             {reporte.reportado_nombre?.charAt(0) || 'U'}
                           </span>
                         </div>
-                        <div className="text-left sm:text-center flex-1 sm:flex-none">
-                          <p className="text-sm font-medium text-gray-900">
-                            {reporte.reportado_nombre || 'Usuario'}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Reportado por
-                          </p>
-                          <p className="text-xs font-medium text-gray-700">
-                            {reporte.reporta_nombre || 'Usuario'}
-                          </p>
-                        </div>
                       </div>
 
-                      {/* Información de la reserva */}
-                      <div className="flex-1 w-full">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-                          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-                            {reporte.area_nombre}
-                          </h3>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium w-fit ${getBadgeColor(reporte.estado)}`}>
+                      {/* Información principal */}
+                      <div className="flex-1 min-w-0">
+                        {/* Título y badge */}
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">
+                              {reporte.reportado_nombre} {reporte.reportado_apellido}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              Usuario reportado
+                            </p>
+                          </div>
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getBadgeColor(reporte.estado)}`}>
                             {reporte.estado.charAt(0).toUpperCase() + reporte.estado.slice(1)}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-600 mb-2">
-                          <span className="font-medium">{reporte.razon}</span>
+
+                        {/* Razón del reporte */}
+                        <div className="bg-red-50 border-l-4 border-red-500 p-2.5 rounded mb-3">
+                          <p className="text-sm font-semibold text-red-900">{reporte.razon}</p>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-1.5">
+
+                        {/* Información de la reserva */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm mb-3">
+                          <div className="flex items-center gap-2 text-gray-700">
                             <MapPinIcon className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                            <span>{reporte.area_nombre}</span>
+                            <span className="font-medium">{reporte.area_nombre}</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2 text-gray-700">
                             <ClockIcon className="w-4 h-4 text-blue-600 flex-shrink-0" />
                             <span>{reporte.hora_inicio} - {reporte.hora_fin}</span>
                           </div>
                         </div>
-                        <div className="text-xs sm:text-sm text-gray-500 mt-2">
-                          {formatearFecha(reporte.reserva_fecha)}
+
+                        <p className="text-xs text-gray-500 mb-3">
+                          📅 {formatearFecha(reporte.reserva_fecha)}
+                        </p>
+
+                        {/* Usuario que reportó */}
+                        <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                          {reporte.reporta_foto ? (
+                            <img 
+                              src={reporte.reporta_foto} 
+                              alt={reporte.reporta_nombre}
+                              className="w-8 h-8 rounded-full object-cover border-2 border-blue-200"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center border-2 border-blue-200">
+                              <span className="text-white font-semibold text-xs">
+                                {reporte.reporta_nombre?.charAt(0) || 'U'}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-gray-500">Reportado por</p>
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {reporte.reporta_nombre} {reporte.reporta_apellido}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setExpandido(expandido === reporte.id_reporte ? null : reporte.id_reporte)}
+                            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                          >
+                            <svg
+                              className={`w-5 h-5 text-gray-600 transition-transform ${
+                                expandido === reporte.id_reporte ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
                         </div>
                       </div>
-
-                      <button
-                        onClick={() => setExpandido(expandido === reporte.id_reporte ? null : reporte.id_reporte)}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors self-start sm:self-auto"
-                      >
-                        <svg
-                          className={`w-5 h-5 text-gray-600 transition-transform ${
-                            expandido === reporte.id_reporte ? 'rotate-180' : ''
-                          }`}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
                     </div>
 
                     {/* Detalles expandidos */}

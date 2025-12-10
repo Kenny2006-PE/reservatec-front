@@ -14,6 +14,7 @@ export interface Reporte {
   // Usuario que reporta
   reporta_nombre: string;
   reporta_apellido: string;
+  reporta_foto?: string | null;
   
   // Usuario reportado
   reportado_nombre: string;
