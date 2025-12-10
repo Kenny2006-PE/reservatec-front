@@ -59,7 +59,7 @@ export default function ReservasPage() {
       name: "Futsal/Vóley/Básket",
       description: "Cancha multiuso deportiva",
       color: "#f59e0b",
-      id: 6
+      id: 4
     },
     ludo: {
       name: "Ludoteca",
@@ -71,7 +71,7 @@ export default function ReservasPage() {
       name: "Ping Pong",
       description: "Mesa de ping pong",
       color: "#14b8a6",
-      id: 4
+      id: 6
     }
   };
 
@@ -87,17 +87,21 @@ export default function ReservasPage() {
   const cargarEstadoAreas = async () => {
     try {
       const response = await AreaService.getAreas();
+      console.log('📡 Respuesta completa de getAreas:', response);
       const areasData = response.data || [];
+      console.log('📋 Datos de áreas recibidos:', areasData);
       
       // Crear un mapa de id_area => habilitada
       const estadoAreas: { [key: number]: boolean } = {};
       areasData.forEach((area: any) => {
+        console.log(`🏟️ Área ${area.id_area} (${area.nombre}): habilitada = ${area.habilitada}`);
         estadoAreas[area.id_area] = area.habilitada;
       });
       
+      console.log('🗺️ Estado final de áreas:', estadoAreas);
       setAreasHabilitadas(estadoAreas);
     } catch (error) {
-      console.error('Error cargando estado de áreas:', error);
+      console.error('❌ Error cargando estado de áreas:', error);
       // Si hay error, asumimos que todas están habilitadas
       const todasHabilitadas: { [key: number]: boolean } = {};
       Object.values(areas).forEach(area => {
@@ -113,8 +117,14 @@ export default function ReservasPage() {
     const area = areas[areaId as keyof typeof areas];
     const estaHabilitada = areasHabilitadas[area.id];
     
+    console.log(`🖱️ Click en área: ${areaId}`);
+    console.log(`🔍 Datos del área:`, area);
+    console.log(`✅ Estado habilitada para ID ${area.id}:`, estaHabilitada);
+    console.log(`📊 Estado completo areasHabilitadas:`, areasHabilitadas);
+    
     // Verificar si el área está habilitada
     if (estaHabilitada === false) {
+      console.log(`🚫 Área deshabilitada, mostrando modal`);
       setModalTitle('Área No Disponible');
       setModalMessage(`El área "${area.name}" no está disponible en este momento. Por favor, contacta al encargado del polideportivo para más información o selecciona otra área deportiva.`);
       setModalType('warning');
@@ -122,6 +132,7 @@ export default function ReservasPage() {
       return;
     }
     
+    console.log(`✅ Área habilitada, navegando a /reservas/${areaId}`);
     router.push(`/reservas/${areaId}`);
   };
 
