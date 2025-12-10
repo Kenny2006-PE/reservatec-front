@@ -639,12 +639,29 @@ export default function ReservaIndividualPage() {
                           <div className="space-y-3">
                             <div className="text-sm text-slate-600">
                               <span className="font-medium">
-                                {new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-ES', { 
-                                  weekday: 'long', 
-                                  year: 'numeric', 
-                                  month: 'long', 
-                                  day: 'numeric' 
-                                })}
+                                {(() => {
+                                  try {
+                                    // Manejar diferentes formatos de fecha
+                                    let fecha;
+                                    if (typeof reserva.fecha === 'string') {
+                                      // Si es string YYYY-MM-DD, parsear correctamente
+                                      const [year, month, day] = reserva.fecha.split('T')[0].split('-').map(Number);
+                                      fecha = new Date(year, month - 1, day);
+                                    } else {
+                                      fecha = new Date(reserva.fecha);
+                                    }
+                                    
+                                    return fecha.toLocaleDateString('es-ES', { 
+                                      weekday: 'long', 
+                                      year: 'numeric', 
+                                      month: 'long', 
+                                      day: 'numeric' 
+                                    });
+                                  } catch (error) {
+                                    console.error('Error parseando fecha:', reserva.fecha, error);
+                                    return reserva.fecha;
+                                  }
+                                })()}
                               </span>
                             </div>
                             
