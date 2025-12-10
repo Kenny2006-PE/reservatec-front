@@ -103,11 +103,14 @@ export default function ReservaIndividualPage() {
     const cargarFechasProhibidas = async () => {
       try {
         const fechas = await obtenerTodasLasFechasIndividuales();
+        console.log('📅 [FECHAS PROHIBIDAS] Fechas recibidas del backend:', fechas);
         const mapa = new Map<string, string>();
         fechas.forEach(f => {
           mapa.set(f.fecha, f.evento);
+          console.log(`📅 [FECHAS PROHIBIDAS] Agregando: ${f.fecha} -> ${f.evento}`);
         });
         setFechasProhibidas(mapa);
+        console.log('📅 [FECHAS PROHIBIDAS] Total fechas prohibidas:', mapa.size);
       } catch (error) {
         console.error('Error cargando fechas prohibidas:', error);
       } finally {
@@ -240,23 +243,29 @@ export default function ReservaIndividualPage() {
     
     // Generar solo los días hábiles desde hoy hasta el viernes de la semana actual
     let i = 0;
-    while (i < 7) {
+    while (i < 14 && weekDays.length < 5) { // Máximo 14 días para cubrir casos extremos
       const day = new Date(startDate);
       day.setDate(startDate.getDate() + i);
       const dayOfWeek = day.getDay();
       
       // Solo agregar días de lunes (1) a viernes (5)
       if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        // Usar formato local en lugar de UTC para evitar offset de timezone
+        const year = day.getFullYear();
+        const month = String(day.getMonth() + 1).padStart(2, '0');
+        const date = String(day.getDate()).padStart(2, '0');
+        const fullDateLocal = `${year}-${month}-${date}`;
+        
         weekDays.push({
           name: dayNames[dayOfWeek],
           date: day.getDate(),
           month: monthNames[day.getMonth()],
-          fullDate: day.toISOString().split('T')[0],
+          fullDate: fullDateLocal,
           isToday: day.toDateString() === today.toDateString()
         });
       }
       
-      // Si llegamos al viernes, terminar
+      // Si llegamos al viernes y ya tenemos días, terminar
       if (dayOfWeek === 5 && weekDays.length > 0) {
         break;
       }
@@ -494,6 +503,8 @@ export default function ReservaIndividualPage() {
                     {weekDays.map((day) => {
                       const estaProhibido = fechasProhibidas.has(day.fullDate);
                       const nombreEvento = fechasProhibidas.get(day.fullDate);
+                      
+                      console.log(`📅 [CHECK] ${day.fullDate} (${day.name}) - Prohibido: ${estaProhibido}${estaProhibido ? ` (${nombreEvento})` : ''}`);
                       
                       return (
                         <div key={day.fullDate} className="relative group">
