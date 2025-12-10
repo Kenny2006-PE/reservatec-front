@@ -14,38 +14,58 @@ function AuthCallbackContent() {
   const router = useRouter();
   
   useEffect(() => {
-    // Verificar si las cookies llegaron
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift();
-      return null;
+    const processAuth = () => {
+      // Obtener parámetros de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const userDataStr = urlParams.get('userData');
+
+      console.log('🔍 [CALLBACK] URL params:', { token: token ? 'present' : 'missing', userData: userDataStr ? 'present' : 'missing' });
+
+      if (token && userDataStr) {
+        try {
+          const userData = JSON.parse(userDataStr);
+          console.log('🔍 [CALLBACK] User data:', userData);
+
+          // Establecer cookies en el dominio del frontend
+          // Cookie HttpOnly para el JWT (aunque no es verdaderamente HttpOnly desde JS, es lo mejor que podemos hacer)
+          document.cookie = `jwt=${token}; path=/; max-age=3600; secure; samesite=strict`;
+          
+          // Cookie con los datos del usuario
+          document.cookie = `userData=${encodeURIComponent(JSON.stringify({
+            email: userData.email,
+            role: userData.role,
+            nombre: userData.nombre,
+            apellido: userData.apellido
+          }))}; path=/; max-age=3600; secure; samesite=strict`;
+          
+          // Cookie con la foto del usuario
+          if (userData.picture) {
+            document.cookie = `userPicture=${encodeURIComponent(userData.picture)}; path=/; max-age=3600; secure; samesite=strict`;
+          }
+
+          console.log('🔍 [CALLBACK] Cookies set successfully');
+
+          // Redirigir según el rol
+          setTimeout(() => {
+            if (userData.role === 'encargado') {
+              router.push('/encargado');
+            } else {
+              router.push('/user-info');
+            }
+          }, 500);
+          
+        } catch (error) {
+          console.error('🔍 [CALLBACK] Error processing auth data:', error);
+          router.push('/?error=auth_error');
+        }
+      } else {
+        console.error('🔍 [CALLBACK] Missing token or userData in URL');
+        setTimeout(() => router.push('/?error=no_token'), 2000);
+      }
     };
 
-    const userData = getCookie('userData');
-    const jwt = getCookie('jwt');
-
-    console.log('🔍 [CALLBACK] Cookies received:', { userData, jwt: jwt ? 'present' : 'missing' });
-
-    if (userData && jwt) {
-      try {
-        const parsed = JSON.parse(decodeURIComponent(userData));
-        console.log('🔍 [CALLBACK] User role:', parsed.role);
-        
-        // Redirigir según el rol
-        if (parsed.role === 'encargado') {
-          router.push('/encargado');
-        } else {
-          router.push('/user-info');
-        }
-      } catch (error) {
-        console.error('🔍 [CALLBACK] Error parsing userData:', error);
-        router.push('/');
-      }
-    } else {
-      console.error('🔍 [CALLBACK] Missing cookies, redirecting to login');
-      setTimeout(() => router.push('/?error=no_cookies'), 2000);
-    }
+    processAuth();
   }, [router]);
 
   return (
