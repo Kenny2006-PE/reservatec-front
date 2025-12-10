@@ -344,12 +344,12 @@ export default function ReservaIndividualPage() {
   const handleContinueReservation = () => {
     if (selectedDate) {
       const areaMap: { [key: string]: number } = {
-        'futbol-1': 1,
-        'futbol-2': 2,
+        'futbol1': 1,
+        'futbol2': 2,
         'fronton': 3,
-        'pingpong': 4,
+        'pingpong': 6,
         'ludo': 5,
-        'voley-basquet': 6
+        'voley': 4
       };
       
       const areaId = areaMap[cancha] || 1;
@@ -366,12 +366,12 @@ export default function ReservaIndividualPage() {
       try {
         // Mapear nombre de cancha al ID del área
         const areaMap: { [key: string]: number } = {
-          'futbol-1': 1,
-          'futbol-2': 2,
+          'futbol1': 1,
+          'futbol2': 2,
           'fronton': 3,
-          'pingpong': 4,
+          'pingpong': 6,
           'ludo': 5,
-          'voley-basquet': 6
+          'voley': 4
         };
 
         // Extraer ID del horario del string selectedHorario (formato: "id:hora")
