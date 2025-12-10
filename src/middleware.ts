@@ -5,7 +5,6 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
 
 // Rutas que requieren autenticación de estudiante
 const protectedStudentRoutes = ['/user-info', '/reservas', '/mis-reservas'];
@@ -16,10 +15,11 @@ const authRoutes = ['/'];
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt');
+  const userData = request.cookies.get('userData');
   const { pathname } = request.nextUrl;
 
   // Si no hay token y está tratando de acceder a rutas protegidas
-  if (!token) {
+  if (!token || !userData) {
     if (protectedStudentRoutes.some(route => pathname.startsWith(route)) ||
         encargadoRoutes.some(route => pathname.startsWith(route))) {
       return NextResponse.redirect(new URL('/', request.url));
@@ -28,10 +28,11 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    // Verificar el token y extraer el rol
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'default_secret');
-    const { payload } = await jwtVerify(token.value, secret);
-    const userRole = payload.role as string;
+    // Obtener el rol del usuario desde la cookie userData (no verificamos el JWT aquí)
+    const userDataParsed = JSON.parse(userData.value);
+    const userRole = userDataParsed.role as string;
+
+    console.log('🔍 Middleware - User role:', userRole, 'Path:', pathname);
 
     // Si está en la página de login y tiene token válido, redirigir según rol
     if (authRoutes.includes(pathname)) {
@@ -60,8 +61,8 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
   } catch (error) {
-    // Si el token es inválido, limpiar cookies y redirigir al login
-    console.error('Error verificando token:', error);
+    // Si hay error parseando userData, limpiar cookies y redirigir al login
+    console.error('Error en middleware:', error);
     const response = NextResponse.redirect(new URL('/', request.url));
     response.cookies.delete('jwt');
     response.cookies.delete('userData');
