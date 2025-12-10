@@ -237,7 +237,7 @@ export default function ReservasPage() {
                     </g>
 
                     {/* Frontón (esquina superior derecha) */}
-                    <g>
+                    <g opacity={areasHabilitadas[3] === false ? 0.4 : 1}>
                       <rect 
                         x="670" 
                         y="40" 
@@ -246,11 +246,16 @@ export default function ReservasPage() {
                         fill={selectedArea === 'fronton' ? '#8b5cf6' : hoveredArea === 'fronton' ? '#a78bfa' : '#ede9fe'}
                         stroke="#8b5cf6" 
                         strokeWidth="3"
-                        className="cursor-pointer transition-all duration-300 hover:fill-opacity-80"
+                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[3] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         onMouseEnter={() => setHoveredArea('fronton')}
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('fronton')}
                       />
+                      {areasHabilitadas[3] === false && (
+                        <text x="765" y="100" textAnchor="middle" className="fill-red-600 font-bold text-lg font-poppins">
+                          ⚠ NO DISPONIBLE
+                        </text>
+                      )}
                       {/* Líneas del frontón */}
                       <rect x="685" y="50" width="160" height="100" fill="none" stroke="#8b5cf6" strokeWidth="2"/>
                       {/* Líneas de servicio */}
@@ -306,7 +311,7 @@ export default function ReservasPage() {
                     </g>
 
                     {/* Área de Futsal/Vóley/Básket (derecha, debajo del frontón) */}
-                    <g>
+                    <g opacity={areasHabilitadas[4] === false ? 0.4 : 1}>
                       <rect 
                         x="670" 
                         y="180" 
@@ -315,11 +320,16 @@ export default function ReservasPage() {
                         fill={selectedArea === 'voley' ? '#f59e0b' : hoveredArea === 'voley' ? '#fbbf24' : '#fef3c7'}
                         stroke="#f59e0b" 
                         strokeWidth="3"
-                        className="cursor-pointer transition-all duration-300 hover:fill-opacity-80"
+                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[4] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         onMouseEnter={() => setHoveredArea('voley')}
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('voley')}
                       />
+                      {areasHabilitadas[4] === false && (
+                        <text x="765" y="320" textAnchor="middle" className="fill-red-600 font-bold text-xl font-poppins">
+                          ⚠ NO DISPONIBLE
+                        </text>
+                      )}
                       {/* Líneas de la cancha multiuso */}
                       <rect x="685" y="195" width="160" height="250" fill="none" stroke="#f59e0b" strokeWidth="2"/>
                       
@@ -347,7 +357,7 @@ export default function ReservasPage() {
                     </g>
 
                     {/* Área de Ludoteca (esquina inferior derecha) */}
-                    <g>
+                    <g opacity={areasHabilitadas[5] === false ? 0.4 : 1}>
                       <rect 
                         x="730" 
                         y="660" 
@@ -356,11 +366,16 @@ export default function ReservasPage() {
                         fill={selectedArea === 'ludo' ? '#ec4899' : hoveredArea === 'ludo' ? '#f472b6' : '#fce7f3'}
                         stroke="#ec4899" 
                         strokeWidth="3"
-                        className="cursor-pointer transition-all duration-300 hover:fill-opacity-80"
+                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[5] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         onMouseEnter={() => setHoveredArea('ludo')}
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('ludo')}
                       />
+                      {areasHabilitadas[5] === false && (
+                        <text x="795" y="710" textAnchor="middle" className="fill-red-600 font-bold text-sm font-poppins">
+                          ⚠ NO DISPONIBLE
+                        </text>
+                      )}
                       {/* Íconos representativos de juegos de mesa */}
                       <circle cx="795" cy="690" r="10" fill="none" stroke="#ec4899" strokeWidth="2"/>
                       <rect x="775" y="710" width="40" height="40" fill="none" stroke="#ec4899" strokeWidth="2"/>
@@ -370,7 +385,7 @@ export default function ReservasPage() {
                     </g>
 
                     {/* Área de Ping Pong (esquina inferior derecha) */}
-                    <g>
+                    <g opacity={areasHabilitadas[6] === false ? 0.4 : 1}>
                       <rect 
                         x="600" 
                         y="660" 
@@ -379,11 +394,16 @@ export default function ReservasPage() {
                         fill={selectedArea === 'pingpong' ? '#14b8a6' : hoveredArea === 'pingpong' ? '#2dd4bf' : '#ccfbf1'}
                         stroke="#14b8a6" 
                         strokeWidth="3"
-                        className="cursor-pointer transition-all duration-300 hover:fill-opacity-80"
+                        className={`transition-all duration-300 hover:fill-opacity-80 ${areasHabilitadas[6] === false ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         onMouseEnter={() => setHoveredArea('pingpong')}
                         onMouseLeave={() => setHoveredArea(null)}
                         onClick={() => handleAreaClick('pingpong')}
                       />
+                      {areasHabilitadas[6] === false && (
+                        <text x="665" y="710" textAnchor="middle" className="fill-red-600 font-bold text-sm font-poppins">
+                          ⚠ NO DISPONIBLE
+                        </text>
+                      )}
                       {/* Mesa de ping pong */}
                       <rect x="620" y="680" width="90" height="60" fill="none" stroke="#14b8a6" strokeWidth="2"/>
                       <line x1="665" y1="680" x2="665" y2="740" stroke="#14b8a6" strokeWidth="2"/>
