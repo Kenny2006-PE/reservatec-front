@@ -12,11 +12,18 @@ const protectedStudentRoutes = ['/user-info', '/reservas', '/mis-reservas'];
 const encargadoRoutes = ['/encargado'];
 // Rutas que solo son accesibles sin autenticación
 const authRoutes = ['/'];
+// Rutas públicas que no requieren verificación
+const publicRoutes = ['/auth/callback'];
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt');
   const userData = request.cookies.get('userData');
   const { pathname } = request.nextUrl;
+
+  // Permitir acceso a rutas públicas sin verificación
+  if (publicRoutes.some(route => pathname.startsWith(route))) {
+    return NextResponse.next();
+  }
 
   // Si no hay token y está tratando de acceder a rutas protegidas
   if (!token || !userData) {
