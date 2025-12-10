@@ -102,24 +102,33 @@ export default function ReportesGeneralesPage() {
     }
   };
 
-  const formatearFecha = (fecha: string) => {
+  const formatearFecha = (fecha: string | undefined) => {
     if (!fecha) return 'Fecha no disponible';
     
-    // MySQL devuelve fechas en formato 'YYYY-MM-DD'
-    // Necesitamos ajustar para evitar problemas de zona horaria
-    const [year, month, day] = fecha.split('T')[0].split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    
-    if (isNaN(date.getTime())) {
-      return 'Fecha inválida';
+    try {
+      // MySQL devuelve fechas en formato 'YYYY-MM-DD'
+      // Necesitamos ajustar para evitar problemas de zona horaria
+      const fechaLimpia = fecha.split('T')[0];
+      const [year, month, day] = fechaLimpia.split('-');
+      
+      if (!year || !month || !day) return 'Fecha no disponible';
+      
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      
+      if (isNaN(date.getTime())) {
+        return 'Fecha inválida';
+      }
+      
+      return date.toLocaleDateString('es-ES', { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    } catch (error) {
+      console.error('Error formateando fecha:', error, fecha);
+      return 'Fecha no disponible';
     }
-    
-    return date.toLocaleDateString('es-ES', { 
-      weekday: 'long', 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    });
   };
 
   const getBadgeColor = (estado: EstadoReporte) => {
@@ -256,12 +265,16 @@ export default function ReportesGeneralesPage() {
                           </div>
                           <div className="flex items-center gap-2 text-gray-700">
                             <ClockIcon className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                            <span>{reporte.hora_inicio} - {reporte.hora_fin}</span>
+                            <span>
+                              {reporte.hora_inicio && reporte.hora_fin 
+                                ? `${reporte.hora_inicio} - ${reporte.hora_fin}`
+                                : reporte.horario || 'Horario no disponible'}
+                            </span>
                           </div>
                         </div>
 
                         <p className="text-xs text-gray-500 mb-3">
-                          📅 {formatearFecha(reporte.reserva_fecha)}
+                          📅 {formatearFecha((reporte.reserva_fecha || reporte.fecha_reserva) as string)}
                         </p>
 
                         {/* Usuario que reportó */}
@@ -269,20 +282,22 @@ export default function ReportesGeneralesPage() {
                           {reporte.reporta_foto ? (
                             <img 
                               src={reporte.reporta_foto} 
-                              alt={reporte.reporta_nombre}
+                              alt={reporte.reporta_nombre || 'Usuario'}
                               className="w-8 h-8 rounded-full object-cover border-2 border-blue-200"
                             />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center border-2 border-blue-200">
                               <span className="text-white font-semibold text-xs">
-                                {reporte.reporta_nombre?.charAt(0) || 'U'}
+                                {(reporte.reporta_nombre || reporte.nombre_reportante || 'U')?.charAt(0)}
                               </span>
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
                             <p className="text-xs text-gray-500">Reportado por</p>
                             <p className="text-sm font-medium text-gray-900 truncate">
-                              {reporte.reporta_nombre} {reporte.reporta_apellido}
+                              {reporte.reporta_nombre && reporte.reporta_apellido 
+                                ? `${reporte.reporta_nombre} ${reporte.reporta_apellido}`
+                                : reporte.nombre_reportante || 'Usuario'}
                             </p>
                           </div>
                           <button
@@ -330,7 +345,11 @@ export default function ReportesGeneralesPage() {
                           </div>
                           <div>
                             <span className="font-semibold text-gray-700">Horario:</span>
-                            <p className="text-gray-600">{reporte.hora_inicio} - {reporte.hora_fin}</p>
+                            <p className="text-gray-600">
+                              {reporte.hora_inicio && reporte.hora_fin 
+                                ? `${reporte.hora_inicio} - ${reporte.hora_fin}`
+                                : reporte.horario || 'No disponible'}
+                            </p>
                           </div>
                         </div>
 

@@ -12,28 +12,32 @@ export interface Reporte {
   comentario_admin?: string | null;
   
   // Usuario que reporta
-  reporta_nombre: string;
-  reporta_apellido: string;
+  reporta_nombre?: string;
+  reporta_apellido?: string;
   reporta_foto?: string | null;
+  nombre_reportante?: string; // Fallback de la vista
   
   // Usuario reportado
   reportado_nombre: string;
-  reportado_apellido: string;
-  reportado_dni: string;
-  reportado_activo: boolean;
+  reportado_apellido?: string;
+  nombre_reportado?: string; // Fallback de la vista
+  reportado_dni?: string;
+  reportado_activo?: boolean;
   
   // Reserva relacionada
   id_reserva: number;
-  reserva_fecha: string;
-  participantes: number;
-  reserva_estado: string;
+  reserva_fecha?: string;
+  fecha_reserva?: string; // Fallback de la vista
+  participantes?: number;
+  reserva_estado?: string;
   
   // Área
   area_nombre: string;
   
   // Horario
-  hora_inicio: string;
-  hora_fin: string;
+  hora_inicio?: string;
+  hora_fin?: string;
+  horario?: string; // Fallback de la vista (formato "HH:MM - HH:MM")
   
   // Admin que revisó
   admin_nombre?: string | null;
